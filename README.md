@@ -1,29 +1,15 @@
 # qua-littera-vue
 
-This template should help get you started developing with Vue 3 in Vite.
+# Handwriting.js
 
-## Recommended IDE Setup
+The handwriting recognition is done using [this library](https://github.com/ChenYuHo/handwriting.js) by Chen-Yu Ho ([project page](https://www.chenyuho.com/project/handwritingjs/)).
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+## Ressources
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
+-   See [Vite Configuration Reference](https://vitejs.dev/config/).
 
 ```sh
 npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
 npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
 npm run build
 ```

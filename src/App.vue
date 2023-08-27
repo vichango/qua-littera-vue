@@ -1,47 +1,36 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-import TheWelcome from './components/TheWelcome.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="./assets/logo.svg" width="125" height="125" />
+  <!-- <ImageCapture @capture="updateImage" :width="320" />
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-    </div>
-  </header>
+  <p v-if="hasImage()">Has image</p>
+  <p v-if="!hasImage()">Not has image</p> -->
 
-  <main>
-    <TheWelcome />
-  </main>
+  <!-- <img ref="image" /> -->
+
+  <HandwritingCanvas />
 </template>
 
+<script setup>
+import { ref } from "vue";
+// import ImageCapture from './components/ImageCapture.vue'
+import HandwritingCanvas from "./components/HandwritingCanvas.vue";
+
+const image = ref("");
+
+// Function updating the <img ref="image"> with the data emited by ImageCapture
+const updateImage = (data) => {
+  image.value.src = data;
+};
+
+// Function returning true if the img element is showing an image
+const hasImage = () => {
+  return image.value.src !== "";
+};
+</script>
+
 <style scoped>
-header {
-  line-height: 1.5;
-}
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
+img {
+  border: 1px solid red;
+  padding: 6px;
+  margin: 6px;
 }
 </style>
