@@ -1,13 +1,21 @@
 <template>
-  <div>
-    <video ref="video" autoplay></video>
-    <canvas ref="canvas" style="display: none"></canvas>
+  <canvas ref="canvas" style="display: none" width="480" height="480"></canvas>
+  
+  <div v-if="capturing">
+    <div class="video-container">
+      <video ref="video" autoplay></video>
+    </div>
     <button @click="capture">Capture</button>
+    <img ref="image" />
+  </div>
+  <div v-else>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
+
+let capturing = true;
 
 const props = defineProps({
   width: {
@@ -18,35 +26,24 @@ const props = defineProps({
 
 const video = ref(null);
 const canvas = ref(null);
+const image = ref("image");
 
 // const hasGetUserMedia = () => {
 //   return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
 // }
 
-let height = null;
-
-const emit = defineEmits(["capture"]);
+// const emit = defineEmits(["capture"]);
 
 onMounted(() => {
   navigator.mediaDevices
-    .getUserMedia({ video: true, audio: false })
+    .getUserMedia({ audio: false, video: true })
     .then((stream) => {
       video.value.srcObject = stream;
       video.value.play();
 
       video.value.addEventListener("canplay", () => {
-        const ratio = video.value.videoWidth / props.width;
-
-        // height = video.value.videoHeight / ratio
-
-        // // Firefox currently has a bug where the height can't be read from
-        // // the video, so we will make assumptions if this happens.
-        // if (isNaN(height)) {
-        //   height = width / (4 / 3);
-        // }
-
-        canvas.value.width = video.value.videoWidth;
-        canvas.value.height = video.value.videoHeight;
+        canvas.value.width = 480;
+        canvas.value.height = 480;
       });
     });
 });
@@ -54,14 +51,37 @@ onMounted(() => {
 const capture = () => {
   const context = canvas.value.getContext("2d");
 
-  canvas.value.width = video.value.videoWidth;
-  canvas.value.height = video.value.videoHeight;
+  console.log(video.value.videoHeight, video.value.videoWidth);
 
-  context.drawImage(video.value, 0, 0, canvas.value.width, canvas.value.height);
+  const scale = 480 / video.value.videoHeight;
+
+  const xOffset = (480 - scale * video.value.videoWidth) / 2;
+
+  context.drawImage(video.value, xOffset, 0, scale * video.value.videoWidth, 480);
 
   // Emit event passing the image data to the parent component.
-  emit("capture", canvas.value.toDataURL("image/png"));
+  // emit("capture", canvas.value.toDataURL("image/png"));
+  
+  image.value.src = canvas.value.toDataURL("image/png");
+
+  capturing = false;
 };
+
+const reset = () => {
+  capturing = true;
+}
 </script>
 
-<style scoped></style>
+<style scoped>
+.video-container {
+  width: 480px;
+  height: 480px;
+  overflow: hidden;
+}
+
+video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+</style>
