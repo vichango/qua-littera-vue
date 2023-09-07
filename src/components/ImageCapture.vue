@@ -1,17 +1,16 @@
 <template>
   <canvas ref="canvas" style="display: none" width="480" height="480"></canvas>
-  
-  <div class="box">
-    <div class="block">
+
+  <div class="block">
+    <div class="video-container">
+      <video v-if="capturing" ref="video" autoplay playsinline></video>
       <img ref="image" :style="{ display: capturing ? 'none' : 'block' }" />
-      <div v-if="capturing" class="video-container">
-        <video ref="video" autoplay></video>
-      </div>
     </div>
-    <div class="block">
-      <button v-if="capturing" class="button" @click="capture">Capture</button>
-      <button v-else class="button" @click="reset">Reset</button>
-    </div>
+  </div>
+
+  <div class="block has-text-centered">
+    <button v-if="capturing" class="button" @click="capture">Capture</button>
+    <button v-else class="button" @click="reset">Reset</button>
   </div>
 </template>
 
@@ -46,7 +45,7 @@ const stopStream = () => {
 
 const startStream = () => {
   navigator.mediaDevices
-    .getUserMedia({ audio: false, video: true })
+    .getUserMedia({ audio: false, video: { facingMode: "environment" } })
     .then((stream) => {
       video.value.srcObject = stream;
       video.value.play();
@@ -61,12 +60,19 @@ const startStream = () => {
 const capture = () => {
   const context = canvas.value.getContext("2d");
 
-  const scale = 480 / video.value.videoHeight;
-  const xOffset = (480 - scale * video.value.videoWidth) / 2;
+  const scale = 480 / Math.min(video.value.videoHeight, video.value.videoWidth);
 
-  context.drawImage(video.value, xOffset, 0, scale * video.value.videoWidth, 480);
+  const xOffset = video.value.videoHeight > video.value.videoWidth ? 0 : ((480 - scale * video.value.videoWidth) / 2);
+  const yOffset = video.value.videoHeight > video.value.videoWidth ? ((480 - scale * video.value.videoHeight) / 2) : 0;
 
-  capturing.value = false;  
+  context.drawImage(
+    video.value,
+    xOffset, yOffset,
+    video.value.videoHeight > video.value.videoWidth ? 480 : scale * video.value.videoWidth,
+    video.value.videoHeight > video.value.videoWidth ? scale * video.value.videoHeight : 480
+  );
+
+  capturing.value = false;
   image.value.src = canvas.value.toDataURL("image/png");
 
   stopStream();
@@ -82,15 +88,19 @@ const reset = () => {
 </script>
 
 <style scoped>
-.video-container {
-  width: 480px;
-  height: 480px;
-  overflow: hidden;
-}
-
 video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+.video-container {
+  padding: 1em;
+  margin: 0 auto;
+  max-width: 480px;
+  max-height: 480px;
+  width: 100vw;
+  height: 100vw;
+  overflow: hidden;
+  border: 2px solid gray;
 }
 </style>
