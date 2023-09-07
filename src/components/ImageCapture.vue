@@ -1,28 +1,24 @@
 <template>
   <canvas ref="canvas" style="display: none" width="480" height="480"></canvas>
   
-  <div v-if="capturing">
-    <div class="video-container">
-      <video ref="video" autoplay></video>
+  <div class="box">
+    <div class="block">
+      <img ref="image" :style="{ display: capturing ? 'none' : 'block' }" />
+      <div v-if="capturing" class="video-container">
+        <video ref="video" autoplay></video>
+      </div>
     </div>
-    <button @click="capture">Capture</button>
-    <img ref="image" />
-  </div>
-  <div v-else>
+    <div class="block">
+      <button v-if="capturing" class="button" @click="capture">Capture</button>
+      <button v-else class="button" @click="reset">Reset</button>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 
-let capturing = true;
-
-const props = defineProps({
-  width: {
-    type: Number,
-    default: 320,
-  },
-});
+const capturing = ref(true)
 
 const video = ref(null);
 const canvas = ref(null);
@@ -35,6 +31,20 @@ const image = ref("image");
 // const emit = defineEmits(["capture"]);
 
 onMounted(() => {
+  reset();
+});
+
+const stopStream = () => {
+  const stream = video.value.srcObject;
+  const tracks = stream.getTracks();
+  tracks.forEach((track) => {
+    track.stop();
+  });
+
+  video.value.srcObject = null;
+}
+
+const startStream = () => {
   navigator.mediaDevices
     .getUserMedia({ audio: false, video: true })
     .then((stream) => {
@@ -46,29 +56,28 @@ onMounted(() => {
         canvas.value.height = 480;
       });
     });
-});
+}
 
 const capture = () => {
   const context = canvas.value.getContext("2d");
 
-  console.log(video.value.videoHeight, video.value.videoWidth);
-
   const scale = 480 / video.value.videoHeight;
-
   const xOffset = (480 - scale * video.value.videoWidth) / 2;
 
   context.drawImage(video.value, xOffset, 0, scale * video.value.videoWidth, 480);
 
-  // Emit event passing the image data to the parent component.
-  // emit("capture", canvas.value.toDataURL("image/png"));
-  
+  capturing.value = false;  
   image.value.src = canvas.value.toDataURL("image/png");
 
-  capturing = false;
+  stopStream();
 };
 
 const reset = () => {
-  capturing = true;
+  capturing.value = true;
+
+  image.value.src = "";
+
+  startStream();
 }
 </script>
 
