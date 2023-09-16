@@ -2,13 +2,18 @@
   <p v-if="error"></p>
 
   <div v-if="letters">
-    <SingleLetter v-for="letter of Object.keys(letters)" :key="letter" :letter="letter" :count="letters[letter]" />
+    <SingleLetter
+      v-for="letter of Object.keys(letters)"
+      :key="letter"
+      :letter="letter"
+      :count="letters[letter]"
+    />
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
-import SingleLetter from './SingleLetter.vue';
+import { onMounted, ref } from "vue";
+import SingleLetter from "./SingleLetter.vue";
 
 const letters = ref();
 
@@ -22,7 +27,7 @@ onMounted(() => {
 const fetchLetters = () => {
   loading.value = true;
 
-  return fetch("http://localhost:3000/letter", {
+  return fetch(`${import.meta.env.VITE_API_URL}/letter`, {
     method: "get",
     headers: {
       "content-type": "application/json",
@@ -60,7 +65,7 @@ const fetchLetters = () => {
   height: 3em;
   background-color: brown;
   text-align: center;
-  margin: .25em;
+  margin: 0.25em;
   display: inline-block;
 }
 
