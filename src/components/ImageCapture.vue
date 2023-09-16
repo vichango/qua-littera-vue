@@ -8,9 +8,12 @@
     </div>
   </div>
 
-  <div class="block has-text-centered">
-    <button v-if="capturing" class="button" @click="capture">Capture</button>
-    <button v-else class="button" @click="reset">Reset</button>
+  <div v-if="capturing" class="block has-text-centered">
+    <button  class="button" @click="capture">Capture</button>
+  </div>
+  <div v-else class="block has-text-centered">
+    <button class="button" @click="proceed">Proceed</button>
+    <button class="button" @click="reset">Reset</button>
   </div>
 </template>
 
@@ -27,7 +30,7 @@ const image = ref("image");
 //   return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
 // }
 
-// const emit = defineEmits(["capture"]);
+const emit = defineEmits(["captured"]);
 
 onMounted(() => {
   reset();
@@ -84,6 +87,10 @@ const reset = () => {
   image.value.src = "";
 
   startStream();
+}
+
+const proceed = () => {
+  emit('captured', image.value.src);
 }
 </script>
 

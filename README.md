@@ -13,3 +13,12 @@ npm install
 npm run dev
 npm run build
 ```
+
+## Docker
+
+- Configured to build an image using Docker compose.
+
+## Jelastic
+
+- Add a public IP address to the load balancer
+- Add a A name entry in the DNS
