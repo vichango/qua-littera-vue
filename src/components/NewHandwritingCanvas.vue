@@ -50,6 +50,9 @@ const initializeCanvas = () => {
   canvas.value.addEventListener("mousedown", mouseDown);
   canvas.value.addEventListener("mousemove", mouseMove);
   canvas.value.addEventListener("mouseup", mouseUp);
+  canvas.value.addEventListener("touchstart", touchStart);
+  canvas.value.addEventListener("touchmove", touchMove);
+  canvas.value.addEventListener("touchend", touchEnd);
 };
 
 const mouseDown = (e) => {
@@ -90,6 +93,52 @@ const mouseUp = () => {
   trace.value.push(w);
   drawing.value = false;
   // if (this.allowUndo) this.step.push(canvas.value.toDataURL());
+};
+
+const touchStart = (e) => {
+  e.preventDefault();
+
+  const ctx = canvas.value.getContext("2d");
+
+  ctx.lineWidth = lineWidth.value;
+  handwritingX.value = [];
+  handwritingY.value = [];
+  drawing.value = true;
+  ctx.beginPath();
+  const rect = canvas.value.getBoundingClientRect();
+  const x = e.touches[0].clientX - rect.left;
+  const y = e.touches[0].clientY - rect.top;
+  ctx.moveTo(x, y);
+  handwritingX.value.push(x);
+  handwritingY.value.push(y);
+};
+
+const touchMove = (e) => {
+  e.preventDefault();
+
+  const ctx = canvas.value.getContext("2d");
+
+  if (drawing.value) {
+    const rect = canvas.value.getBoundingClientRect();
+    const x = e.touches[0].clientX - rect.left;
+    const y = e.touches[0].clientY - rect.top;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    handwritingX.value.push(x);
+    handwritingY.value.push(y);
+  }
+};
+
+const touchEnd = (e) => {
+  e.preventDefault();
+
+  const w = [];
+  w.push(handwritingX.value);
+  w.push(handwritingY.value);
+  w.push([]);
+  trace.value.push(w);
+  drawing.value = false;
+  // if (this.allowUndo) this.step.push(this.canvas.toDataURL());
 };
 </script>
 
