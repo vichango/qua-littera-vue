@@ -9,7 +9,7 @@
   </div>
 
   <div v-if="capturing" class="block has-text-centered">
-    <button  class="button" @click="capture">Capture</button>
+    <button class="button" @click="capture">Capture</button>
   </div>
   <div v-else class="block has-text-centered">
     <button class="button" @click="proceed">Proceed</button>
@@ -20,7 +20,7 @@
 <script setup>
 import { ref, onMounted } from "vue";
 
-const capturing = ref(true)
+const capturing = ref(true);
 
 const video = ref(null);
 const canvas = ref(null);
@@ -44,7 +44,7 @@ const stopStream = () => {
   });
 
   video.value.srcObject = null;
-}
+};
 
 const startStream = () => {
   navigator.mediaDevices
@@ -58,21 +58,32 @@ const startStream = () => {
         canvas.value.height = 480;
       });
     });
-}
+};
 
 const capture = () => {
   const context = canvas.value.getContext("2d");
 
   const scale = 480 / Math.min(video.value.videoHeight, video.value.videoWidth);
 
-  const xOffset = video.value.videoHeight > video.value.videoWidth ? 0 : ((480 - scale * video.value.videoWidth) / 2);
-  const yOffset = video.value.videoHeight > video.value.videoWidth ? ((480 - scale * video.value.videoHeight) / 2) : 0;
+  const xOffset =
+    video.value.videoHeight > video.value.videoWidth
+      ? 0
+      : (480 - scale * video.value.videoWidth) / 2;
+  const yOffset =
+    video.value.videoHeight > video.value.videoWidth
+      ? (480 - scale * video.value.videoHeight) / 2
+      : 0;
 
   context.drawImage(
     video.value,
-    xOffset, yOffset,
-    video.value.videoHeight > video.value.videoWidth ? 480 : scale * video.value.videoWidth,
-    video.value.videoHeight > video.value.videoWidth ? scale * video.value.videoHeight : 480
+    xOffset,
+    yOffset,
+    video.value.videoHeight > video.value.videoWidth
+      ? 480
+      : scale * video.value.videoWidth,
+    video.value.videoHeight > video.value.videoWidth
+      ? scale * video.value.videoHeight
+      : 480,
   );
 
   capturing.value = false;
@@ -87,11 +98,11 @@ const reset = () => {
   image.value.src = "";
 
   startStream();
-}
+};
 
 const proceed = () => {
-  emit('captured', image.value.src);
-}
+  emit("captured", image.value.src);
+};
 </script>
 
 <style scoped>
