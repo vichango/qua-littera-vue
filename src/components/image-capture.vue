@@ -11,10 +11,6 @@
   <div v-if="capturing" class="block has-text-centered">
     <button class="button" @click="capture">Capture</button>
   </div>
-  <div v-else class="block has-text-centered">
-    <button class="button" @click="proceed">Proceed</button>
-    <button class="button" @click="reset">Reset</button>
-  </div>
 </template>
 
 <script setup>
@@ -33,7 +29,7 @@ const image = ref("image");
 const emit = defineEmits(["captured"]);
 
 onMounted(() => {
-  reset();
+  initialise();
 });
 
 const stopStream = () => {
@@ -89,19 +85,15 @@ const capture = () => {
   capturing.value = false;
   image.value.src = canvas.value.toDataURL("image/png");
 
+  emit("captured", image.value.src);
+
   stopStream();
 };
 
-const reset = () => {
+const initialise = () => {
   capturing.value = true;
-
   image.value.src = "";
-
   startStream();
-};
-
-const proceed = () => {
-  emit("captured", image.value.src);
 };
 </script>
 
@@ -119,6 +111,6 @@ video {
   width: 100vw;
   height: 100vw;
   overflow: hidden;
-  border: 2px solid gray;
+  background-color: gray;
 }
 </style>

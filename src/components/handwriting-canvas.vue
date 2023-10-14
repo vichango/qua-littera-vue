@@ -208,13 +208,12 @@ const recognize = () => {
 img {
   padding: 1em;
   margin: 0 auto;
-  border: 2px solid gray;
+  background-color: red;
 }
 
 canvas {
   padding: 0;
   margin: 0 auto;
-  border: 2px solid red;
   cursor: crosshair;
   position: relative;
   top: -488px;
