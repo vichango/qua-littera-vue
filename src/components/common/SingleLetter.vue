@@ -4,6 +4,7 @@
   >
     {{ props.letter }}
     <div
+      v-if="count"
       class="absolute inline-flex items-center justify-center w-8 h-8 text-xs text-white bg-red-500 rounded-full -top-3 -right-3"
     >
       {{ props.count }}
@@ -14,7 +15,7 @@
 <script setup>
 const props = defineProps({
   letter: { type: String, default: null },
-  count: { type: Number, default: 0 },
+  count: { type: Number, default: null },
 });
 </script>
 

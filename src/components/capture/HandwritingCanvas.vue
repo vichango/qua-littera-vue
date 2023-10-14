@@ -35,11 +35,19 @@
         C'est fait
       </button>
     </div>
+    <div v-if="letterOptions" class="w-full flex justify-center">
+      <SingleLetter
+        v-for="(letter, index) of letterOptions"
+        :key="index"
+        :letter="letter"
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from "vue";
+import SingleLetter from "../common/SingleLetter.vue";
 
 const props = defineProps({
   photo: { type: String, default: "" },
@@ -57,11 +65,10 @@ const lineWidth = ref(3);
 
 const size = ref(Math.min(480, window.innerWidth));
 
+const letterOptions = ref([]);
+
 onMounted(() => {
   initializeCanvas();
-
-  console.log(size.value);
-
   window.addEventListener("resize", resizeCanvas);
 });
 
@@ -192,6 +199,8 @@ const erase = () => {
 
   ctx.clearRect(0, 0, 480, 480);
   trace.value = [];
+
+  letterOptions.value = [];
 };
 
 const recognize = () => {
@@ -222,7 +231,7 @@ const recognize = () => {
         const response = JSON.parse(xhr.responseText);
         let results;
         if (response.length === 1) {
-          alert(undefined, new Error(response[0]));
+          console.log(undefined, new Error(response[0]));
         } else {
           results = response[1][0][1];
         }
@@ -234,11 +243,17 @@ const recognize = () => {
         if (options.numOfReturn) {
           results = results.slice(0, options.numOfReturn);
         }
-        alert(results, undefined);
+        letterOptions.value = results;
+        console.log(results, undefined);
       } else if (xhr.status === 403) {
-        alert(undefined, new Error("access denied"));
+        letterOptions.value = [];
+        console.log(undefined, new Error("access denied"));
       } else if (xhr.status === 503) {
-        alert(undefined, new Error("can't connect to recognition server"));
+        letterOptions.value = [];
+        console.log(
+          undefined,
+          new Error("can't connect to recognition server"),
+        );
       }
     }
   });

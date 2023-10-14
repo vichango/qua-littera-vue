@@ -4,17 +4,13 @@
       ref="canvas"
       class="p-0 my-0 mx-auto cursor-crosshair relative rounded"
       style="display: none"
-      width="480"
-      height="480"
+      :width="size"
+      :height="size"
     ></canvas>
 
-    <div class="block">
-      <div
-        class="p-4 my-0 mx-auto max-w-[480px] max-h-[480px] w-screen h-screen overflow-hidden bg-blue-300"
-      >
-        <video v-if="capturing" ref="video" autoplay playsinline></video>
-        <img ref="image" :style="{ display: capturing ? 'none' : 'block' }" />
-      </div>
+    <div class="video-container p-4 my-0 mx-auto overflow-hidden bg-blue-300">
+      <video v-if="capturing" ref="video" autoplay playsinline></video>
+      <img ref="image" :style="{ display: capturing ? 'none' : 'block' }" />
     </div>
 
     <div v-if="capturing" class="w-full flex justify-center">
@@ -29,7 +25,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 
 const capturing = ref(true);
 
@@ -37,15 +33,26 @@ const video = ref(null);
 const canvas = ref(null);
 const image = ref("image");
 
-// const hasGetUserMedia = () => {
-//   return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia)
-// }
+const size = ref(Math.min(480, window.innerWidth));
 
 const emit = defineEmits(["captured"]);
 
+const sizePx = computed(() => {
+  return `${size.value}px`;
+});
+
 onMounted(() => {
   initialise();
+  window.addEventListener("resize", resizeCanvas);
 });
+
+onUnmounted(() => {
+  window.removeEventListener("resize", resizeCanvas);
+});
+
+const resizeCanvas = () => {
+  size.value = Math.min(480, window.innerWidth);
+};
 
 const stopStream = () => {
   const stream = video.value.srcObject;
@@ -65,8 +72,8 @@ const startStream = () => {
       video.value.play();
 
       video.value.addEventListener("canplay", () => {
-        canvas.value.width = 480;
-        canvas.value.height = 480;
+        canvas.value.width = size.value;
+        canvas.value.height = size.value;
       });
     });
 };
@@ -74,15 +81,16 @@ const startStream = () => {
 const capture = () => {
   const context = canvas.value.getContext("2d");
 
-  const scale = 480 / Math.min(video.value.videoHeight, video.value.videoWidth);
+  const scale =
+    size.value / Math.min(video.value.videoHeight, video.value.videoWidth);
 
   const xOffset =
     video.value.videoHeight > video.value.videoWidth
       ? 0
-      : (480 - scale * video.value.videoWidth) / 2;
+      : (size.value - scale * video.value.videoWidth) / 2;
   const yOffset =
     video.value.videoHeight > video.value.videoWidth
-      ? (480 - scale * video.value.videoHeight) / 2
+      ? (size.value - scale * video.value.videoHeight) / 2
       : 0;
 
   context.drawImage(
@@ -90,11 +98,11 @@ const capture = () => {
     xOffset,
     yOffset,
     video.value.videoHeight > video.value.videoWidth
-      ? 480
+      ? size.value
       : scale * video.value.videoWidth,
     video.value.videoHeight > video.value.videoWidth
       ? scale * video.value.videoHeight
-      : 480,
+      : size.value,
   );
 
   capturing.value = false;
@@ -118,14 +126,8 @@ video {
   height: 100%;
   object-fit: cover;
 }
+
 .video-container {
-  padding: 1em;
-  margin: 0 auto;
-  max-width: 480px;
-  max-height: 480px;
-  width: 100vw;
-  height: 100vw;
-  overflow: hidden;
-  background-color: gray;
+  height: v-bind("sizePx");
 }
 </style>
