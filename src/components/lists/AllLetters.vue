@@ -29,35 +29,42 @@ onMounted(() => {
 const fetchLetters = () => {
   loading.value = true;
 
-  return fetch(`${import.meta.env.VITE_API_URL}/letter`, {
-    method: "get",
-    headers: {
-      "content-type": "application/json",
-    },
-  })
-    .then((res) => {
-      if (!res.ok) {
-        const error = new Error(res.statusText);
-        error.json = res.json();
-        throw error;
-      }
+  letters.value = {
+    a: 6,
+    b: 3,
+    J: 1,
+    X: 2,
+  };
 
-      return res.json();
-    })
-    .then((json) => {
-      letters.value = json.data;
-    })
-    .catch((err) => {
-      error.value = err;
-      if (err.json) {
-        return err.json.then((json) => {
-          error.value.message = json.message;
-        });
-      }
-    })
-    .then(() => {
-      loading.value = false;
-    });
+  // return fetch(`${import.meta.env.VITE_API_URL}/letter`, {
+  //   method: "get",
+  //   headers: {
+  //     "content-type": "application/json",
+  //   },
+  // })
+  //   .then((res) => {
+  //     if (!res.ok) {
+  //       const error = new Error(res.statusText);
+  //       error.json = res.json();
+  //       throw error;
+  //     }
+
+  //     return res.json();
+  //   })
+  //   .then((json) => {
+  //     letters.value = json.data;
+  //   })
+  //   .catch((err) => {
+  //     error.value = err;
+  //     if (err.json) {
+  //       return err.json.then((json) => {
+  //         error.value.message = json.message;
+  //       });
+  //     }
+  //   })
+  //   .then(() => {
+  //     loading.value = false;
+  //   });
 };
 </script>
 

@@ -1,17 +1,45 @@
 <template>
-  <div class="block has-text-centered" style="height: 480px">
-    <img ref="photo" width="480" height="480" :src="props.photo" />
-    <canvas ref="canvas" width="480" height="480"></canvas>
-  </div>
-  <div class="block has-text-centered">
-    <button class="button" @click="goBack">Retour</button>
-    <button class="button" @click="erase">Effacer</button>
-    <button class="button" @click="recognize">C'est fait</button>
+  <div class="bg-green-200 md:h-screen">
+    <div class="w-full canvas-box">
+      <img
+        ref="photo"
+        class="p-4 my-0 mx-auto bg-green-300 rounded"
+        :width="size"
+        :height="size"
+        :src="props.photo"
+      />
+      <canvas
+        ref="canvas"
+        class="p-0 my-0 mx-auto cursor-crosshair relative rounded"
+        :width="size"
+        :height="size"
+      ></canvas>
+    </div>
+    <div class="w-full flex justify-center">
+      <button
+        class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded"
+        @click="goBack"
+      >
+        Retour
+      </button>
+      <button
+        class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded"
+        @click="erase"
+      >
+        Effacer
+      </button>
+      <button
+        class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded"
+        @click="recognize"
+      >
+        C'est fait
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 
 const props = defineProps({
   photo: { type: String, default: "" },
@@ -23,11 +51,34 @@ const canvas = ref(null);
 const drawing = ref(false);
 const handwritingX = ref([]);
 const handwritingY = ref([]);
+
 const trace = ref([]);
 const lineWidth = ref(3);
 
+const size = ref(Math.min(480, window.innerWidth));
+
 onMounted(() => {
   initializeCanvas();
+
+  console.log(size.value);
+
+  window.addEventListener("resize", resizeCanvas);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", resizeCanvas);
+});
+
+const resizeCanvas = () => {
+  size.value = Math.min(480, window.innerWidth);
+};
+
+const sizePx = computed(() => {
+  return `${size.value}px`;
+});
+
+const negativeSizePx = computed(() => {
+  return `-${size.value}px`;
 });
 
 const goBack = () => {
@@ -171,7 +222,7 @@ const recognize = () => {
         const response = JSON.parse(xhr.responseText);
         let results;
         if (response.length === 1) {
-          console.log(undefined, new Error(response[0]));
+          alert(undefined, new Error(response[0]));
         } else {
           results = response[1][0][1];
         }
@@ -183,14 +234,11 @@ const recognize = () => {
         if (options.numOfReturn) {
           results = results.slice(0, options.numOfReturn);
         }
-        console.log(results, undefined);
+        alert(results, undefined);
       } else if (xhr.status === 403) {
-        console.log(undefined, new Error("access denied"));
+        alert(undefined, new Error("access denied"));
       } else if (xhr.status === 503) {
-        console.log(
-          undefined,
-          new Error("can't connect to recognition server"),
-        );
+        alert(undefined, new Error("can't connect to recognition server"));
       }
     }
   });
@@ -205,17 +253,11 @@ const recognize = () => {
 </script>
 
 <style scoped>
-img {
-  padding: 1em;
-  margin: 0 auto;
-  background-color: red;
+.canvas-box {
+  height: v-bind("sizePx");
 }
 
 canvas {
-  padding: 0;
-  margin: 0 auto;
-  cursor: crosshair;
-  position: relative;
-  top: -488px;
+  top: v-bind("negativeSizePx");
 }
 </style>

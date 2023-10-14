@@ -1,20 +1,35 @@
 <template>
-  <canvas ref="canvas" style="display: none" width="480" height="480"></canvas>
+  <div class="bg-blue-200 md:h-screen">
+    <canvas
+      ref="canvas"
+      class="p-0 my-0 mx-auto cursor-crosshair relative rounded"
+      style="display: none"
+      width="480"
+      height="480"
+    ></canvas>
 
-  <div class="block">
-    <div class="video-container">
-      <video v-if="capturing" ref="video" autoplay playsinline></video>
-      <img ref="image" :style="{ display: capturing ? 'none' : 'block' }" />
+    <div class="block">
+      <div
+        class="p-4 my-0 mx-auto max-w-[480px] max-h-[480px] w-screen h-screen overflow-hidden bg-blue-300"
+      >
+        <video v-if="capturing" ref="video" autoplay playsinline></video>
+        <img ref="image" :style="{ display: capturing ? 'none' : 'block' }" />
+      </div>
     </div>
-  </div>
 
-  <div v-if="capturing" class="block has-text-centered">
-    <button class="button" @click="capture">Capture</button>
+    <div v-if="capturing" class="w-full flex justify-center">
+      <button
+        class="border-2 border-blue-500 text-blue-500 font-bold py-2 px-4 m-2 rounded"
+        @click="capture"
+      >
+        Capture
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { onMounted, ref } from "vue";
 
 const capturing = ref(true);
 

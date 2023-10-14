@@ -14,9 +14,9 @@
 </template>
 
 <script setup>
+import { Client, Databases } from "appwrite";
 import { onMounted, ref } from "vue";
 import SingleLetter from "../common/SingleLetter.vue";
-import { Client, Databases } from "appwrite";
 
 const letters = ref();
 

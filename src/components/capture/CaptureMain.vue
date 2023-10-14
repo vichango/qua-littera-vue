@@ -1,11 +1,13 @@
 <template>
-  <div v-if="'nothing' === doing" class="flex justify-center">
-    <button
-      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      @click="doing = 'capture'"
-    >
-      Démarrer la capture
-    </button>
+  <div v-if="'nothing' === doing" class="bg-blue-200 md:h-screen">
+    <div class="w-full flex justify-center">
+      <button
+        class="border-2 border-blue-500 text-blue-500 font-bold py-2 px-4 m-2 rounded"
+        @click="doing = 'capture'"
+      >
+        Démarrer la capture
+      </button>
+    </div>
   </div>
   <ImageCapture v-else-if="'capture' === doing" @captured="customSave" />
   <HandwritingCanvas
@@ -17,8 +19,8 @@
 
 <script setup>
 import { ref } from "vue";
-import ImageCapture from "./ImageCapture.vue";
 import HandwritingCanvas from "./HandwritingCanvas.vue";
+import ImageCapture from "./ImageCapture.vue";
 
 const doing = ref("nothing");
 
