@@ -1,5 +1,5 @@
 <template>
-  <h1>Your letters</h1>
+  <h1>Toutes les captures</h1>
 
   <p v-if="error"></p>
 
@@ -15,7 +15,7 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import SingleLetter from "./single-letter.vue";
+import SingleLetter from "../common/single-letter.vue";
 
 const letters = ref();
 
