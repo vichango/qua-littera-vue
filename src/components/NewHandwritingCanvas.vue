@@ -1,7 +1,11 @@
 <template>
-  <div class="block has-text-centered">
+  <div class="block has-text-centered" style="height: 480px">
     <img ref="photo" width="480" height="480" :src="props.photo" />
     <canvas ref="canvas" width="480" height="480"></canvas>
+  </div>
+  <div class="block has-text-centered">
+    <button class="button" @click="erase">Erase</button>
+    <button class="button" @click="recognize">Recognize</button>
   </div>
 </template>
 
@@ -17,19 +21,9 @@ const drawing = ref(false);
 const handwritingX = ref([]);
 const handwritingY = ref([]);
 const trace = ref([]);
-const step = ref([]);
-// const redoTrace = ref([]);
-// const redoStep = ref([]);
 const lineWidth = ref(3);
 
 onMounted(() => {
-  // const ctx = canvas.value.getContext("2d");
-  // // TODO Replace with offscreen canvas.
-  // const image = new Image();
-  // image.onload = function() {
-  //   ctx.drawImage(image, 0, 0);
-  // };
-  // image.src = props.background;
   initializeCanvas();
 });
 
@@ -38,14 +32,10 @@ const initializeCanvas = () => {
   ctx.lineCap = "round";
   ctx.lineJoin = "round";
 
-  // TODO Useful?
   drawing.value = false;
   handwritingX.value = [];
   handwritingY.value = [];
   trace.value = [];
-  step.value = [];
-  // redoStep.value = [];
-  // redoTrace.value = [];
 
   canvas.value.addEventListener("mousedown", mouseDown);
   canvas.value.addEventListener("mousemove", mouseMove);
@@ -92,7 +82,6 @@ const mouseUp = () => {
   w.push([]);
   trace.value.push(w);
   drawing.value = false;
-  // if (this.allowUndo) this.step.push(canvas.value.toDataURL());
 };
 
 const touchStart = (e) => {
@@ -138,7 +127,73 @@ const touchEnd = (e) => {
   w.push([]);
   trace.value.push(w);
   drawing.value = false;
-  // if (this.allowUndo) this.step.push(this.canvas.toDataURL());
+};
+
+const erase = () => {
+  const ctx = canvas.value.getContext("2d");
+
+  ctx.clearRect(0, 0, 480, 480);
+  trace.value = [];
+};
+
+const recognize = () => {
+  if (trace.value.length === 0) {
+    return; // Handle case when there's no trace
+  }
+
+  const options = {};
+
+  const data = JSON.stringify({
+    options: "enable_pre_space",
+    requests: [
+      {
+        writing_guide: {
+          writing_area_width: 480,
+          writing_area_height: 480,
+        },
+        ink: trace.value,
+        language: options.language || "fr_FR",
+      },
+    ],
+  });
+
+  const xhr = new XMLHttpRequest();
+  xhr.addEventListener("readystatechange", () => {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+        let results;
+        if (response.length === 1) {
+          console.log(undefined, new Error(response[0]));
+        } else {
+          results = response[1][0][1];
+        }
+        if (options.numOfWords) {
+          results = results.filter(
+            (result) => result.length === options.numOfWords,
+          );
+        }
+        if (options.numOfReturn) {
+          results = results.slice(0, options.numOfReturn);
+        }
+        console.log(results, undefined);
+      } else if (xhr.status === 403) {
+        console.log(undefined, new Error("access denied"));
+      } else if (xhr.status === 503) {
+        console.log(
+          undefined,
+          new Error("can't connect to recognition server"),
+        );
+      }
+    }
+  });
+
+  xhr.open(
+    "POST",
+    "https://www.google.com.tw/inputtools/request?ime=handwriting&app=mobilesearch&cs=1&oe=UTF-8",
+  );
+  xhr.setRequestHeader("content-type", "application/json");
+  xhr.send(data);
 };
 </script>
 
