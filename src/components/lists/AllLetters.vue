@@ -1,5 +1,5 @@
 <template>
-  <h1>Vos captures</h1>
+  <h1>Toutes les captures</h1>
 
   <p v-if="error"></p>
 
@@ -15,8 +15,7 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import SingleLetter from "../common/single-letter.vue";
-import { Client, Databases } from "appwrite";
+import SingleLetter from "../common/SingleLetter.vue";
 
 const letters = ref();
 
@@ -30,29 +29,33 @@ onMounted(() => {
 const fetchLetters = () => {
   loading.value = true;
 
-  const client = new Client();
-  client
-    .setEndpoint("https://cloud.appwrite.io/v1")
-    .setProject(import.meta.env.VITE_APPWRITE_PROJECT);
+  return fetch(`${import.meta.env.VITE_API_URL}/letter`, {
+    method: "get",
+    headers: {
+      "content-type": "application/json",
+    },
+  })
+    .then((res) => {
+      if (!res.ok) {
+        const error = new Error(res.statusText);
+        error.json = res.json();
+        throw error;
+      }
 
-  const databases = new Databases(client);
-  const promise = databases.listDocuments(
-    "652a6efd64951d089865",
-    "652a6f03d4a60d2f31bb",
-  );
-
-  return promise
-    .then(
-      function (response) {
-        letters.value = response.documents.reduce((acc, { letter, count }) => {
-          return { ...acc, [letter]: count };
-        }, {});
-      },
-      function (error) {
-        console.log(error);
-      },
-    )
-    .finally(() => {
+      return res.json();
+    })
+    .then((json) => {
+      letters.value = json.data;
+    })
+    .catch((err) => {
+      error.value = err;
+      if (err.json) {
+        return err.json.then((json) => {
+          error.value.message = json.message;
+        });
+      }
+    })
+    .then(() => {
       loading.value = false;
     });
 };

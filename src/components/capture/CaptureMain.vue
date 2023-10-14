@@ -17,8 +17,8 @@
 
 <script setup>
 import { ref } from "vue";
-import ImageCapture from "./image-capture.vue";
-import HandwritingCanvas from "./handwriting-canvas.vue";
+import ImageCapture from "./ImageCapture.vue";
+import HandwritingCanvas from "./HandwritingCanvas.vue";
 
 const doing = ref("nothing");
 
