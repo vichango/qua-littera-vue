@@ -4,8 +4,9 @@
     <canvas ref="canvas" width="480" height="480"></canvas>
   </div>
   <div class="block has-text-centered">
-    <button class="button" @click="erase">Erase</button>
-    <button class="button" @click="recognize">Recognize</button>
+    <button class="button" @click="goBack">Retour</button>
+    <button class="button" @click="erase">Effacer</button>
+    <button class="button" @click="recognize">C'est fait</button>
   </div>
 </template>
 
@@ -15,6 +16,8 @@ import { onMounted, ref } from "vue";
 const props = defineProps({
   photo: { type: String, default: "" },
 });
+
+const emit = defineEmits(["reset"]);
 
 const canvas = ref(null);
 const drawing = ref(false);
@@ -26,6 +29,10 @@ const lineWidth = ref(3);
 onMounted(() => {
   initializeCanvas();
 });
+
+const goBack = () => {
+  emit("reset");
+};
 
 const initializeCanvas = () => {
   const ctx = canvas.value.getContext("2d");

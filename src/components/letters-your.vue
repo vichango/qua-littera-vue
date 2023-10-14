@@ -1,4 +1,6 @@
 <template>
+  <h1>Your letters</h1>
+
   <p v-if="error"></p>
 
   <div v-if="letters">
@@ -13,7 +15,7 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-import SingleLetter from "./SingleLetter.vue";
+import SingleLetter from "./single-letter.vue";
 
 const letters = ref();
 
