@@ -15,7 +15,8 @@
     "@fortawesome/free-solid-svg-icons": "^6.4.2",
     "@fortawesome/vue-fontawesome": "^3.0.3",
     "appwrite": "^13.0.0",
-    "vue": "^3.3.4"
+    "vue": "^3.3.4",
+    "vue3-colorpicker": "^2.2.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.3.1",

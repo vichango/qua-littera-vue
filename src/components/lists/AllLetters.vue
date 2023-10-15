@@ -4,12 +4,11 @@
   <p v-if="error"></p>
 
   <div v-if="letters">
-    <SingleLetter
-      v-for="({ letter, trace, capture }, index) of letters"
+    <LetterGroup
+      v-for="([letter, captures], index) of Object.entries(letters)"
       :key="index"
       :letter="letter"
-      :trace="trace"
-      :capture="capture"
+      :captures="captures"
     />
   </div>
 </template>
@@ -17,7 +16,7 @@
 <script setup>
 import { Client, Databases } from "appwrite";
 import { inject, onMounted, ref } from "vue";
-import SingleLetter from "../common/SingleLetter.vue";
+import LetterGroup from "../common/LetterGroup.vue";
 
 const mainDb = inject("mainDb");
 const mainDbCapturesCol = inject("mainDbCapturesCol");
@@ -45,13 +44,22 @@ const fetchLetters = () => {
   return promise
     .then(
       function (response) {
-        letters.value = response.documents.map(
-          ({ letter, deviceId, trace, capture }) => ({
-            letter,
-            deviceId,
-            trace,
-            capture,
-          }),
+        letters.value = response.documents.reduce(
+          (acc, { letter, deviceId, trace, capture }) => {
+            return {
+              ...acc,
+              [letter]: [
+                ...(acc[letter] || []),
+                {
+                  letter,
+                  deviceId,
+                  trace,
+                  capture,
+                },
+              ],
+            };
+          },
+          {},
         );
       },
       function (error) {

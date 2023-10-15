@@ -28,6 +28,11 @@
       >
         Effacer
       </button>
+      <div
+        class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded"
+      >
+        <color-picker v-model:pureColor="traceColor" />
+      </div>
       <button
         class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded"
         @click="recognize"
@@ -49,7 +54,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 
 const props = defineProps({
   photo: { type: String, default: "" },
@@ -64,10 +69,17 @@ const handwritingY = ref([]);
 
 const trace = ref([]);
 const lineWidth = ref(3);
+const traceColor = ref("#000000");
 
 const size = ref(Math.min(480, window.innerWidth));
 
 const letterOptions = ref([]);
+
+watch(traceColor, async (newColor) => {
+  console.log("Changing color: ", newColor);
+  const ctx = canvas.value.getContext("2d");
+  ctx.strokeStyle = newColor;
+});
 
 onMounted(() => {
   initializeCanvas();
@@ -108,6 +120,8 @@ const initializeCanvas = () => {
   handwritingX.value = [];
   handwritingY.value = [];
   trace.value = [];
+
+  ctx.strokeStyle = traceColor.value;
 
   canvas.value.addEventListener("mousedown", mouseDown);
   canvas.value.addEventListener("mousemove", mouseMove);
@@ -226,7 +240,7 @@ const recognize = () => {
           writing_area_height: 480,
         },
         ink: trace.value,
-        language: options.language || "fr_FR",
+        language: options.language || "fr",
       },
     ],
   });

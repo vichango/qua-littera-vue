@@ -14,7 +14,6 @@
 </template>
 
 <script setup>
-import { Client, Databases } from "appwrite";
 import { onMounted, ref } from "vue";
 
 const letters = ref();
@@ -29,31 +28,31 @@ onMounted(() => {
 const fetchLetters = () => {
   loading.value = true;
 
-  const client = new Client();
-  client
-    .setEndpoint("https://cloud.appwrite.io/v1")
-    .setProject(import.meta.env.VITE_APPWRITE_PROJECT);
+  // const client = new Client();
+  // client
+  //   .setEndpoint("https://cloud.appwrite.io/v1")
+  //   .setProject(import.meta.env.VITE_APPWRITE_PROJECT);
 
-  const databases = new Databases(client);
-  const promise = databases.listDocuments(
-    "652a6efd64951d089865",
-    "652a6f03d4a60d2f31bb",
-  );
+  // const databases = new Databases(client);
+  // const promise = databases.listDocuments(
+  //   "652a6efd64951d089865",
+  //   "652a6f03d4a60d2f31bb",
+  // );
 
-  return promise
-    .then(
-      function (response) {
-        letters.value = response.documents.reduce((acc, { letter, count }) => {
-          return { ...acc, [letter]: count };
-        }, {});
-      },
-      function (error) {
-        console.log(error);
-      },
-    )
-    .finally(() => {
-      loading.value = false;
-    });
+  // return promise
+  //   .then(
+  //     function (response) {
+  //       letters.value = response.documents.reduce((acc, { letter, count }) => {
+  //         return { ...acc, [letter]: count };
+  //       }, {});
+  //     },
+  //     function (error) {
+  //       console.log(error);
+  //     },
+  //   )
+  //   .finally(() => {
+  //     loading.value = false;
+  //   });
 };
 </script>
 
