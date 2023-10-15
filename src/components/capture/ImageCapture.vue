@@ -8,7 +8,7 @@
       :height="sizePx"
     ></canvas>
 
-    <div class="video-container p-4 my-0 mx-auto overflow-hidden bg-blue-300">
+    <div class="video-container p-4 my-0 mx-auto overflow-hidden bg-blue-400">
       <video v-if="capturing" ref="video" autoplay playsinline></video>
       <img ref="image" :style="{ display: capturing ? 'none' : 'block' }" />
     </div>
@@ -19,6 +19,7 @@
         @click="capture"
       >
         Capture
+        <font-awesome-icon icon="fa-solid fa-camera" class="ms-3" />
       </button>
     </div>
   </div>

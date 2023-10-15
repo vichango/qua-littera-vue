@@ -3,7 +3,7 @@
     <div class="w-full canvas-box">
       <img
         ref="photo"
-        class="p-4 my-0 mx-auto bg-green-300 rounded"
+        class="p-4 my-0 mx-auto bg-green-400 rounded"
         :width="size"
         :height="size"
         :src="props.photo"
@@ -15,36 +15,53 @@
         :height="size"
       ></canvas>
     </div>
-    <div class="w-full flex justify-center">
-      <button
-        class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded"
-        @click="goBack"
-      >
-        Retour
-      </button>
-      <button
-        class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded"
-        @click="erase"
-      >
-        Effacer
-      </button>
-      <div
-        class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded"
-      >
-        <color-picker v-model:pureColor="traceColor" />
+    <div class="flex justify-center">
+      <div class="w-full max-w-[480px] flex">
+        <button
+          class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded"
+          :disabled="saving ? 'disabled' : false"
+          @click="goBack"
+        >
+          <font-awesome-icon icon="fa-solid fa-camera" />
+        </button>
+        <button
+          class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded"
+          :disabled="saving ? 'disabled' : false"
+          @click="erase"
+        >
+          <font-awesome-icon icon="fa-solid fa-trash" />
+        </button>
+        <div
+          v-if="!saving"
+          class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded ms-4 me-8"
+        >
+          <color-picker v-model:pureColor="traceColor" class="rounded-full" />
+        </div>
+
+        <button
+          v-if="saving"
+          class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded"
+        >
+          Enreg.
+          <font-awesome-icon icon="fa-solid fa-floppy-disk" />
+        </button>
+        <button
+          v-else
+          class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded"
+          @click="recognize"
+        >
+          C'est prêt
+        </button>
       </div>
-      <button
-        class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded"
-        @click="recognize"
-      >
-        C'est fait
-      </button>
     </div>
-    <div v-if="letterOptions" class="w-full flex justify-center">
+    <div
+      v-if="letterOptions.length"
+      class="w-full h-auto flex flex-wrap justify-center my-2"
+    >
       <button
         v-for="(letter, index) of letterOptions"
         :key="index"
-        class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded"
+        class="bg-green-500 text-green-100 font-bold py-2 px-4 m-1 text-xl rounded"
         @click="traced(letter)"
       >
         {{ letter }}
@@ -54,13 +71,17 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { Client, Databases, ID, Storage } from "appwrite";
+import { computed, inject, onMounted, onUnmounted, ref, watch } from "vue";
+
+const saving = ref(false);
 
 const props = defineProps({
   photo: { type: String, default: "" },
+  deviceId: { type: String, required: true },
 });
 
-const emit = defineEmits(["reset", "traced"]);
+const emit = defineEmits(["reset"]);
 
 const canvas = ref(null);
 const drawing = ref(false);
@@ -68,17 +89,41 @@ const handwritingX = ref([]);
 const handwritingY = ref([]);
 
 const trace = ref([]);
-const lineWidth = ref(3);
+const lineWidth = ref(6);
 const traceColor = ref("#000000");
 
 const size = ref(Math.min(480, window.innerWidth));
 
 const letterOptions = ref([]);
 
+const tracesBuc = inject("tracesBuc");
+const capturesBuc = inject("capturesBuc");
+const mainDb = inject("mainDb");
+const mainDbCapturesCol = inject("mainDbCapturesCol");
+
 watch(traceColor, async (newColor) => {
-  console.log("Changing color: ", newColor);
   const ctx = canvas.value.getContext("2d");
+  ctx.clearRect(0, 0, 480, 480);
   ctx.strokeStyle = newColor;
+
+  for (let i = 0; i < trace.value.length; i++) {
+    const [xStack, yStack] = trace.value[i];
+
+    if (xStack.length > 0 && yStack.length > 0) {
+      const x = xStack[0];
+      const y = yStack[0];
+
+      ctx.moveTo(x, y);
+
+      for (let j = 1; j < xStack.length; j++) {
+        const x = xStack[j];
+        const y = yStack[j];
+
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      }
+    }
+  }
 });
 
 onMounted(() => {
@@ -104,7 +149,8 @@ const negativeSizePx = computed(() => {
 
 const traced = (letter) => {
   const traced64 = canvas.value.toDataURL("image/png");
-  emit("traced", letter, traced64);
+  saveToBucket(letter, traced64);
+  erase();
 };
 
 const goBack = () => {
@@ -166,8 +212,13 @@ const mouseUp = () => {
   w.push(handwritingX.value);
   w.push(handwritingY.value);
   w.push([]);
+
+  console.log("Pushing to trace: ", w);
+
   trace.value.push(w);
   drawing.value = false;
+
+  console.log("Trace: ", trace.value);
 };
 
 const touchStart = (e) => {
@@ -285,6 +336,71 @@ const recognize = () => {
   );
   xhr.setRequestHeader("content-type", "application/json");
   xhr.send(data);
+};
+
+const saveToBucket = async (letter, trace64) => {
+  saving.value = true;
+
+  const client = new Client();
+  const storage = new Storage(client);
+  const databases = new Databases(client);
+
+  // Save capture file.
+  client
+    .setEndpoint("https://cloud.appwrite.io/v1")
+    .setProject(import.meta.env.VITE_APPWRITE_PROJECT);
+
+  const captureBase64 = await fetch(props.photo.value);
+  const captureBlob = await captureBase64.blob();
+  const captureFile = new File([captureBlob], "capture.png", {
+    type: "image/png",
+  });
+
+  const captureFileId = ID.unique();
+
+  const captureUpload = await storage.createFile(
+    capturesBuc,
+    captureFileId,
+    captureFile,
+  );
+
+  // Save trace file.
+  client
+    .setEndpoint("https://cloud.appwrite.io/v1")
+    .setProject(import.meta.env.VITE_APPWRITE_PROJECT);
+
+  const traceBase64 = await fetch(trace64);
+  const traceBlob = await traceBase64.blob();
+  const traceFile = new File([traceBlob], "trace.png", {
+    type: "image/png",
+  });
+
+  const traceFileId = ID.unique();
+
+  const traceUpload = await storage.createFile(
+    tracesBuc,
+    traceFileId,
+    traceFile,
+  );
+
+  // Save in database.
+  const documentId = ID.unique();
+
+  const respose = await databases.createDocument(
+    mainDb,
+    mainDbCapturesCol,
+    documentId,
+    {
+      letter,
+      trace: traceUpload.$id,
+      capture: captureUpload.$id,
+      device: props.deviceId,
+    },
+  );
+
+  saving.value = false;
+
+  console.log(respose);
 };
 </script>
 
