@@ -1,21 +1,53 @@
 <template>
-  <div
+  <div>
+    <img :src="captureUrl" width="128" height="128" />
+    <img :src="traceUrl" width="128" height="128" />
+    {{ props.letter }}
+  </div>
+  <!-- <div
     class="relative inline-flex m-2 w-16 h-16 rounded bg-rose-400 text-2xl justify-center items-center"
   >
-    {{ props.letter }}
-    <div
-      v-if="count"
-      class="absolute inline-flex items-center justify-center w-8 h-8 text-xs text-white bg-red-500 rounded-full -top-3 -right-3"
-    >
-      {{ props.count }}
-    </div>
-  </div>
+  </div> -->
 </template>
 
 <script setup>
+import { Client, Storage } from "appwrite";
+import { inject, onMounted, ref } from "vue";
+
 const props = defineProps({
-  letter: { type: String, default: null },
-  count: { type: Number, default: null },
+  letter: { type: String, required: true },
+  trace: { type: String, required: true },
+  capture: { type: String, required: true },
+});
+
+const traceUrl = ref(null);
+const captureUrl = ref(null);
+
+const client = new Client();
+const storage = new Storage(client);
+
+client
+  .setEndpoint("https://cloud.appwrite.io/v1")
+  .setProject(import.meta.env.VITE_APPWRITE_PROJECT);
+
+const tracesBuc = inject("tracesBuc");
+const capturesBuc = inject("capturesBuc");
+
+onMounted(() => {
+  traceUrl.value = storage.getFilePreview(
+    tracesBuc,
+    props.trace,
+    128,
+    128,
+  ).href;
+  captureUrl.value = storage.getFilePreview(
+    capturesBuc,
+    props.capture,
+    128,
+    128,
+  ).href;
+
+  console.log({ trace: traceUrl.value, capture: captureUrl.value });
 });
 </script>
 

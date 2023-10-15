@@ -1,12 +1,13 @@
 <template>
   <div v-if="'nothing' === doing" class="bg-blue-200 md:h-screen">
-    <div class="placeholder p-4 my-0 mx-auto overflow-hidden bg-blue-300"></div>
+    <div class="placeholder p-4 my-0 mx-auto overflow-hidden bg-blue-400"></div>
     <div class="w-full flex justify-center">
       <button
-        class="border-2 border-blue-500 text-blue-500 font-bold py-2 px-4 m-2 rounded"
+        class="border-2 border-blue-400 text-blue-500 font-bold py-2 px-4 m-2 rounded"
         @click="doing = 'capture'"
       >
-        <font-awesome-icon icon="fa-solid fa-play" />
+        Démarrer
+        <font-awesome-icon icon="fa-solid fa-play" class="ms-3" />
       </button>
     </div>
   </div>

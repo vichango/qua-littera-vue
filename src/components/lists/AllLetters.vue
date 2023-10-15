@@ -5,17 +5,22 @@
 
   <div v-if="letters">
     <SingleLetter
-      v-for="letter of Object.keys(letters)"
-      :key="letter"
+      v-for="({ letter, trace, capture }, index) of letters"
+      :key="index"
       :letter="letter"
-      :count="letters[letter]"
+      :trace="trace"
+      :capture="capture"
     />
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { Client, Databases } from "appwrite";
+import { inject, onMounted, ref } from "vue";
 import SingleLetter from "../common/SingleLetter.vue";
+
+const mainDb = inject("mainDb");
+const mainDbCapturesCol = inject("mainDbCapturesCol");
 
 const letters = ref();
 
@@ -29,42 +34,33 @@ onMounted(() => {
 const fetchLetters = () => {
   loading.value = true;
 
-  letters.value = {
-    a: 6,
-    b: 3,
-    J: 1,
-    X: 2,
-  };
+  const client = new Client();
+  client
+    .setEndpoint("https://cloud.appwrite.io/v1")
+    .setProject(import.meta.env.VITE_APPWRITE_PROJECT);
 
-  // return fetch(`${import.meta.env.VITE_API_URL}/letter`, {
-  //   method: "get",
-  //   headers: {
-  //     "content-type": "application/json",
-  //   },
-  // })
-  //   .then((res) => {
-  //     if (!res.ok) {
-  //       const error = new Error(res.statusText);
-  //       error.json = res.json();
-  //       throw error;
-  //     }
+  const databases = new Databases(client);
+  const promise = databases.listDocuments(mainDb, mainDbCapturesCol);
 
-  //     return res.json();
-  //   })
-  //   .then((json) => {
-  //     letters.value = json.data;
-  //   })
-  //   .catch((err) => {
-  //     error.value = err;
-  //     if (err.json) {
-  //       return err.json.then((json) => {
-  //         error.value.message = json.message;
-  //       });
-  //     }
-  //   })
-  //   .then(() => {
-  //     loading.value = false;
-  //   });
+  return promise
+    .then(
+      function (response) {
+        letters.value = response.documents.map(
+          ({ letter, deviceId, trace, capture }) => ({
+            letter,
+            deviceId,
+            trace,
+            capture,
+          }),
+        );
+      },
+      function (error) {
+        console.log(error);
+      },
+    )
+    .finally(() => {
+      loading.value = false;
+    });
 };
 </script>
 

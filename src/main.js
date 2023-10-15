@@ -11,4 +11,8 @@ library.add(faPlay);
 
 createApp(App)
   .component('font-awesome-icon', FontAwesomeIcon)
+  .provide('mainDb', '652a5ee533766bbba165')
+  .provide('mainDbCapturesCol', '652a5ee9ecbd3b0f908b')
+  .provide('tracesBuc', '652a5e1f99df9c37608c')
+  .provide('capturesBuc', '652a5e155ebcbfb645f6')
   .mount("#app");

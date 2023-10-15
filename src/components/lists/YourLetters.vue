@@ -4,19 +4,18 @@
   <p v-if="error"></p>
 
   <div v-if="letters">
-    <SingleLetter
+    <!-- <SingleLetter
       v-for="letter of Object.keys(letters)"
       :key="letter"
       :letter="letter"
       :count="letters[letter]"
-    />
+    /> -->
   </div>
 </template>
 
 <script setup>
 import { Client, Databases } from "appwrite";
 import { onMounted, ref } from "vue";
-import SingleLetter from "../common/SingleLetter.vue";
 
 const letters = ref();
 

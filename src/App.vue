@@ -26,7 +26,6 @@ import AllLetters from "./components/lists/AllLetters.vue";
 import YourLetters from "./components/lists/YourLetters.vue";
 
 const deviceId = ref(null);
-
 deviceId.value = localStorage.getItem("qua-littera-device-id");
 
 if (null === deviceId.value) {
