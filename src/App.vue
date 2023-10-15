@@ -1,14 +1,18 @@
 <template>
-  <div class="flex flex-wrap">
-    <div class="w-full md:flex-1">
-      <CaptureMain />
-    </div>
-    <div class="w-full md:flex-1 flex flex-wrap">
-      <div class="w-full lg:flex-1">
-        <YourLetters></YourLetters>
+  <div class="flex h-screen">
+    <div class="flex flex-col md:flex-row w-full">
+      <div class="w-full md:basis-1/2">
+        <CaptureMain />
       </div>
-      <div class="w-full lg:flex-1">
-        <AllLetters></AllLetters>
+      <div class="flex w-full md:basis-1/2">
+        <div class="w-full flex flex-col lg:flex-row h-screen">
+          <div class="lg:basis-1/2">
+            <YourLetters />
+          </div>
+          <div class="lg:basis-1/2">
+            <AllLetters />
+          </div>
+        </div>
       </div>
     </div>
   </div>

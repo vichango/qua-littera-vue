@@ -1,11 +1,12 @@
 <template>
   <div v-if="'nothing' === doing" class="bg-blue-200 md:h-screen">
+    <div class="placeholder p-4 my-0 mx-auto overflow-hidden bg-blue-300"></div>
     <div class="w-full flex justify-center">
       <button
         class="border-2 border-blue-500 text-blue-500 font-bold py-2 px-4 m-2 rounded"
         @click="doing = 'capture'"
       >
-        Démarrer la capture
+        <font-awesome-icon icon="fa-solid fa-play" />
       </button>
     </div>
   </div>
@@ -18,13 +19,29 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import HandwritingCanvas from "./HandwritingCanvas.vue";
 import ImageCapture from "./ImageCapture.vue";
 
 const doing = ref("nothing");
-
 const capturedSrc = ref("");
+
+const size = ref(Math.min(480, window.innerWidth));
+const sizePx = computed(() => {
+  return `${size.value}px`;
+});
+
+onMounted(() => {
+  window.addEventListener("resize", resizeCanvas);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", resizeCanvas);
+});
+
+const resizeCanvas = () => {
+  size.value = Math.min(480, window.innerWidth);
+};
 
 const customSave = (src) => {
   capturedSrc.value = src;
@@ -37,4 +54,9 @@ const resetCapture = () => {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.placeholder {
+  width: v-bind("sizePx");
+  height: v-bind("sizePx");
+}
+</style>

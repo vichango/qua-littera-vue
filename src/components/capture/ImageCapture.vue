@@ -4,8 +4,8 @@
       ref="canvas"
       class="p-0 my-0 mx-auto cursor-crosshair relative rounded"
       style="display: none"
-      :width="size"
-      :height="size"
+      :width="sizePx"
+      :height="sizePx"
     ></canvas>
 
     <div class="video-container p-4 my-0 mx-auto overflow-hidden bg-blue-300">
@@ -128,6 +128,7 @@ video {
 }
 
 .video-container {
+  width: v-bind("sizePx");
   height: v-bind("sizePx");
 }
 </style>
