@@ -36,24 +36,26 @@
       </button>
     </div>
     <div v-if="letterOptions" class="w-full flex justify-center">
-      <SingleLetter
+      <button
         v-for="(letter, index) of letterOptions"
         :key="index"
-        :letter="letter"
-      />
+        class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded"
+        @click="traced(letter)"
+      >
+        {{ letter }}
+      </button>
     </div>
   </div>
 </template>
 
 <script setup>
 import { computed, onMounted, onUnmounted, ref } from "vue";
-import SingleLetter from "../common/SingleLetter.vue";
 
 const props = defineProps({
   photo: { type: String, default: "" },
 });
 
-const emit = defineEmits(["reset"]);
+const emit = defineEmits(["reset", "traced"]);
 
 const canvas = ref(null);
 const drawing = ref(false);
@@ -87,6 +89,11 @@ const sizePx = computed(() => {
 const negativeSizePx = computed(() => {
   return `-${size.value}px`;
 });
+
+const traced = (letter) => {
+  const traced64 = canvas.value.toDataURL("image/png");
+  emit("traced", letter, traced64);
+};
 
 const goBack = () => {
   emit("reset");

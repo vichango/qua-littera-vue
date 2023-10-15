@@ -2,7 +2,7 @@
   <div class="flex h-screen">
     <div class="flex flex-col md:flex-row w-full">
       <div class="w-full md:basis-1/2">
-        <CaptureMain />
+        <CaptureMain :device-id="deviceId" />
       </div>
       <div class="flex w-full md:basis-1/2">
         <div class="w-full flex flex-col lg:flex-row h-screen">

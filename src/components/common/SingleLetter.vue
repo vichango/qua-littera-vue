@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex">
     <img :src="captureUrl" width="128" height="128" />
     <img :src="traceUrl" width="128" height="128" />
     {{ props.letter }}
@@ -46,8 +46,6 @@ onMounted(() => {
     128,
     128,
   ).href;
-
-  console.log({ trace: traceUrl.value, capture: captureUrl.value });
 });
 </script>
 
