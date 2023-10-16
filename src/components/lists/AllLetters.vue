@@ -1,5 +1,7 @@
 <template>
-  <h1>Toutes les captures</h1>
+  <h1 class="text-2xl align-center text-violet-600 my-4">
+    Toutes les captures
+  </h1>
 
   <p v-if="error"></p>
 

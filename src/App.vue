@@ -7,7 +7,7 @@
       <div class="flex w-full md:basis-1/2">
         <div class="w-full flex flex-col lg:flex-row h-screen">
           <div class="lg:basis-1/2">
-            <YourLetters />
+            <YourLetters :device-id="deviceId" />
           </div>
           <div class="lg:basis-1/2">
             <AllLetters />

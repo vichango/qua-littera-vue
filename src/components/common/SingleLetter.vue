@@ -1,13 +1,8 @@
 <template>
-  <div class="flex">
+  <div class="letter-container">
     <img :src="captureUrl" width="128" height="128" />
-    <img :src="traceUrl" width="128" height="128" />
-    {{ props.letter }}
+    <img :src="traceUrl" width="128" height="128" class="relative traced" />
   </div>
-  <!-- <div
-    class="relative inline-flex m-2 w-16 h-16 rounded bg-rose-400 text-2xl justify-center items-center"
-  >
-  </div> -->
 </template>
 
 <script setup>
@@ -49,4 +44,12 @@ onMounted(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.traced {
+  top: -128px;
+}
+
+.letter-container {
+  height: 128px;
+}
+</style>
