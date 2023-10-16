@@ -350,7 +350,7 @@ const saveToBucket = async (letter, trace64) => {
     .setEndpoint("https://cloud.appwrite.io/v1")
     .setProject(import.meta.env.VITE_APPWRITE_PROJECT);
 
-  const captureBase64 = await fetch(props.photo.value);
+  const captureBase64 = await fetch(props.photo);
   const captureBlob = await captureBase64.blob();
   const captureFile = new File([captureBlob], "capture.png", {
     type: "image/png",
