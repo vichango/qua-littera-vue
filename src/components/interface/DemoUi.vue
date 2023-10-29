@@ -1,22 +1,18 @@
 <template>
-  <h1 class="text-2xl align-center text-violet-600 my-4">
-    Toutes les captures
-  </h1>
-
   <div v-if="letters">
-    <LetterGroup
-      v-for="([letter, captures], index) of Object.entries(letters)"
+    <LetterScroll
+      v-for="(letter, index) of phraseLetters"
       :key="index"
       :letter="letter"
-      :captures="captures"
+      :captures="letter in letters ? letters[letter] : []"
     />
   </div>
 </template>
 
 <script setup>
 import { Client, Databases } from "appwrite";
-import { inject, onMounted, ref } from "vue";
-import LetterGroup from "../common/LetterGroup.vue";
+import { computed, inject, onMounted, ref } from "vue";
+import LetterScroll from "../demo/LetterScroll.vue";
 
 const mainDb = inject("mainDb");
 const mainDbCapturesCol = inject("mainDbCapturesCol");
@@ -24,6 +20,25 @@ const mainDbCapturesCol = inject("mainDbCapturesCol");
 const letters = ref();
 
 const loading = ref(false);
+
+const phrase = "Les lettres ont du charactère";
+
+const phraseLetters = computed(() => {
+  const words = phrase.split(" ");
+  console.log(words);
+
+  return words.reduce((acc, curr, index) => {
+    if (index + 1 < words.length) {
+      return [
+        ...acc,
+        ...curr.split("").map((letter) => letter.toUpperCase()),
+        " ",
+      ];
+    } else {
+      return [...acc, ...curr.split("").map((letter) => letter.toUpperCase())];
+    }
+  }, []);
+});
 
 onMounted(() => {
   fetchLetters();
@@ -60,6 +75,8 @@ const fetchLetters = () => {
           },
           {},
         );
+
+        console.log(letters.value);
       },
       function (error) {
         console.log(error);
@@ -71,18 +88,4 @@ const fetchLetters = () => {
 };
 </script>
 
-<style scoped>
-.letter-box {
-  width: 3em;
-  height: 3em;
-  background-color: brown;
-  text-align: center;
-  margin: 0.25em;
-  display: inline-block;
-}
-
-.letter {
-  vertical-align: middle;
-  color: gold;
-}
-</style>
+<style scoped></style>

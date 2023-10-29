@@ -1,37 +1,27 @@
 <template>
-  <div class="flex h-screen">
-    <div class="flex flex-col md:flex-row w-full">
-      <div class="w-full md:basis-1/2">
-        <CaptureMain :device-id="deviceId" />
-      </div>
-      <div class="flex w-full md:basis-1/2">
-        <div class="w-full flex flex-col lg:flex-row h-screen">
-          <div class="lg:basis-1/2">
-            <YourLetters :device-id="deviceId" />
-          </div>
-          <div class="lg:basis-1/2">
-            <AllLetters />
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <component :is="currentView" />
 </template>
 
 <script setup>
-import { v4 as uuidv4 } from "uuid";
-import { ref } from "vue";
-import CaptureMain from "./components/capture/CaptureMain.vue";
-import AllLetters from "./components/lists/AllLetters.vue";
-import YourLetters from "./components/lists/YourLetters.vue";
+import { computed, ref } from "vue";
+import DemoUi from "./components/interface/DemoUi.vue";
+import NotFound from "./components/interface/NotFound.vue";
+import PlayerUi from "./components/interface/PlayerUi.vue";
 
-const deviceId = ref(null);
-deviceId.value = localStorage.getItem("qua-littera-device-id");
+const routes = {
+  "/": PlayerUi,
+  "/demo": DemoUi,
+};
 
-if (null === deviceId.value) {
-  deviceId.value = uuidv4();
-  localStorage.setItem("qua-littera-device-id", deviceId.value);
-}
+const currentPath = ref(window.location.hash);
+
+window.addEventListener("hashchange", () => {
+  currentPath.value = window.location.hash;
+});
+
+const currentView = computed(() => {
+  return routes[currentPath.value.slice(1) || "/"] || NotFound;
+});
 </script>
 
 <style scoped></style>

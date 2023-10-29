@@ -27,7 +27,7 @@ const loading = ref(false);
 const error = ref(null);
 
 const props = defineProps({
-  deviceId: { type: String, required: true },
+  playerId: { type: String, required: true },
 });
 
 onMounted(() => {
@@ -44,7 +44,7 @@ const fetchLetters = () => {
 
   const databases = new Databases(client);
   const promise = databases.listDocuments(mainDb, mainDbCapturesCol, [
-    Query.equal("device", props.deviceId),
+    Query.equal("device", props.playerId),
   ]);
 
   return promise
