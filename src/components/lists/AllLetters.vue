@@ -9,6 +9,7 @@
       :key="index"
       :letter="letter"
       :captures="captures"
+      :player-id="props.playerId"
     />
   </div>
 </template>
@@ -20,6 +21,7 @@ import LetterGroup from "../common/LetterGroup.vue";
 
 const props = defineProps({
   event: { type: Object, required: true },
+  playerId: { type: String, required: true },
 });
 
 const mainDb = inject("main-db");
@@ -45,14 +47,15 @@ const fetchLetters = () => {
     .then(
       function (response) {
         letters.value = response.documents.reduce(
-          (acc, { letter, deviceId, trace, capture }) => {
+          (acc, { $id, letter, device, trace, capture }) => {
             return {
               ...acc,
               [letter]: [
                 ...(acc[letter] || []),
                 {
+                  id: $id,
                   letter,
-                  deviceId,
+                  player: device,
                   trace,
                   capture,
                 },

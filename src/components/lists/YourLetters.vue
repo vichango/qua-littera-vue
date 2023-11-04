@@ -1,14 +1,12 @@
 <template>
   <h1 class="text-2xl align-center text-violet-600 my-4">Tes captures</h1>
-
-  <p v-if="error"></p>
-
   <div v-if="letters">
     <LetterGroup
       v-for="([letter, captures], index) of Object.entries(letters)"
       :key="index"
       :letter="letter"
       :captures="captures"
+      :player-id="props.playerId"
     />
   </div>
 </template>
@@ -24,7 +22,6 @@ const mainDbCapturesCol = inject("main-db-captures-col");
 const letters = ref();
 
 const loading = ref(false);
-const error = ref(null);
 
 const props = defineProps({
   event: { type: Object, required: true },
@@ -47,14 +44,15 @@ const fetchLetters = () => {
     .then(
       function (response) {
         letters.value = response.documents.reduce(
-          (acc, { letter, deviceId, trace, capture }) => {
+          (acc, { $id, letter, device, trace, capture }) => {
             return {
               ...acc,
               [letter]: [
                 ...(acc[letter] || []),
                 {
+                  id: $id,
                   letter,
-                  deviceId,
+                  player: device,
                   trace,
                   capture,
                 },

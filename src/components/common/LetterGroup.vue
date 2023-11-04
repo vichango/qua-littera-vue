@@ -1,11 +1,10 @@
 <template>
   <div v-if="open" class="flex flex-wrap">
     <SingleLetter
-      v-for="({ trace, capture }, index) of props.captures"
+      v-for="(capture, index) of props.captures"
       :key="index"
-      :letter="props.letter"
-      :trace="trace"
       :capture="capture"
+      :player-id="props.playerId"
       @click="toggle"
     />
   </div>
@@ -32,7 +31,8 @@ const open = ref(false);
 
 const props = defineProps({
   letter: { type: String, required: true },
-  captures: { type: Array, default: () => [] },
+  playerId: { type: String, required: true },
+  captures: { type: Array, required: true },
 });
 
 const toggle = () => {

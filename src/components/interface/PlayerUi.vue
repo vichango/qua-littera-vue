@@ -1,5 +1,10 @@
 <template>
   <div v-if="event && playerId" class="flex h-screen">
+    <qrcode-vue
+      :value="playerUrl"
+      level="L"
+      :style="{ position: 'absolute', bottom: '12px', right: '12px' }"
+    />
     <div class="flex flex-col md:flex-row w-full">
       <div class="w-full md:basis-1/2">
         <CaptureMain :event="props.event" :player-id="props.playerId" />
@@ -8,11 +13,9 @@
         <div class="w-full flex flex-col lg:flex-row h-screen">
           <div class="lg:basis-1/2">
             <YourLetters :event="props.event" :player-id="props.playerId" />
-            <qrcode-vue :value="playerUrl" level="L" />
-            <pre>{{ playerUrl }}</pre>
           </div>
           <div class="lg:basis-1/2">
-            <AllLetters :event="event" />
+            <AllLetters :event="event" :player-id="props.playerId" />
           </div>
         </div>
       </div>

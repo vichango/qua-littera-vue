@@ -103,6 +103,9 @@ const capturesBucket = inject("captures-bucket");
 const mainDb = inject("main-db");
 const mainDbCapturesCol = inject("main-db-captures-col");
 
+const databases = inject("appwrite-databases");
+const storage = inject("appwrite-storage");
+
 watch(traceColor, async (newColor) => {
   const ctx = canvas.value.getContext("2d");
   ctx.clearRect(0, 0, 480, 480);
@@ -342,9 +345,6 @@ const recognize = () => {
 
 const saveToBucket = async (letter, trace64) => {
   saving.value = true;
-
-  const databases = inject("appwrite-databases");
-  const storage = inject("appwrite-storage");
 
   // Save capture file.
   const captureBase64 = await fetch(props.photo);
