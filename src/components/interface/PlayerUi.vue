@@ -8,8 +8,8 @@
         <div class="w-full flex flex-col lg:flex-row h-screen">
           <div class="lg:basis-1/2">
             <YourLetters :event="props.event" :player-id="props.playerId" />
-            <qrcode-vue :value="url" level="L" />
-            <pre>{{ url }}</pre>
+            <qrcode-vue :value="playerUrl" level="L" />
+            <pre>{{ playerUrl }}</pre>
           </div>
           <div class="lg:basis-1/2">
             <AllLetters :event="event" />
@@ -32,8 +32,10 @@ const props = defineProps({
   playerId: { type: String, required: true },
 });
 
-const url = computed(() => {
-  return `https://qua-littera.pruebitas.dev/?eid=${props.event.id}&pid=${props.playerId}`;
+const playerUrl = computed(() => {
+  return `${import.meta.env.VITE_SERVER_URL}/?eid=${props.event.id}&pid=${
+    props.playerId
+  }`;
 });
 </script>
 
