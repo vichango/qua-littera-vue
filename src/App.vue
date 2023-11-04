@@ -73,7 +73,7 @@ const loadFromUrl = () => {
     }
 
     // Clear URL.
-    window.history.replaceState(import.meta.env.VITE_SERVER_URL);
+    window.history.replaceState(null, "", import.meta.env.VITE_SERVER_URL);
   }
 };
 
