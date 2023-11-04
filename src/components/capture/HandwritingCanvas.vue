@@ -78,6 +78,7 @@ const saving = ref(false);
 
 const props = defineProps({
   photo: { type: String, default: "" },
+  event: { type: Object, required: true },
   deviceId: { type: String, required: true },
 });
 
@@ -383,7 +384,7 @@ const saveToBucket = async (letter, trace64) => {
     traceFile,
   );
 
-  // Save in database.
+  // Save entry in database.
   const documentId = ID.unique();
 
   const respose = await databases.createDocument(
@@ -394,6 +395,7 @@ const saveToBucket = async (letter, trace64) => {
       letter,
       trace: traceUpload.$id,
       capture: captureUpload.$id,
+      event: props.event.id,
       device: props.deviceId,
     },
   );

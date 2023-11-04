@@ -14,9 +14,13 @@
 </template>
 
 <script setup>
-import { Client, Databases } from "appwrite";
+import { Client, Databases, Query } from "appwrite";
 import { inject, onMounted, ref } from "vue";
 import LetterGroup from "../common/LetterGroup.vue";
+
+const props = defineProps({
+  event: { type: Object, required: true },
+});
 
 const mainDb = inject("mainDb");
 const mainDbCapturesCol = inject("mainDbCapturesCol");
@@ -38,7 +42,9 @@ const fetchLetters = () => {
     .setProject(import.meta.env.VITE_APPWRITE_PROJECT);
 
   const databases = new Databases(client);
-  const promise = databases.listDocuments(mainDb, mainDbCapturesCol);
+  const promise = databases.listDocuments(mainDb, mainDbCapturesCol, [
+    Query.equal("event", props.event.id),
+  ]);
 
   return promise
     .then(

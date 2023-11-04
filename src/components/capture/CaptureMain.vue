@@ -15,6 +15,7 @@
   <HandwritingCanvas
     v-else-if="'drawing' === doing"
     :photo="capturedSrc"
+    :event="props.event"
     :device-id="props.playerId"
     @reset="resetCapture"
   />
@@ -26,6 +27,7 @@ import HandwritingCanvas from "./HandwritingCanvas.vue";
 import ImageCapture from "./ImageCapture.vue";
 
 const props = defineProps({
+  event: { type: Object, required: true },
   playerId: { type: String, required: true },
 });
 

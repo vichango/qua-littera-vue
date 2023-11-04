@@ -27,6 +27,7 @@ const loading = ref(false);
 const error = ref(null);
 
 const props = defineProps({
+  event: { type: Object, required: true },
   playerId: { type: String, required: true },
 });
 
@@ -44,12 +45,14 @@ const fetchLetters = () => {
 
   const databases = new Databases(client);
   const promise = databases.listDocuments(mainDb, mainDbCapturesCol, [
+    Query.equal("event", props.event.id),
     Query.equal("device", props.playerId),
   ]);
 
   return promise
     .then(
       function (response) {
+        console.log(props.event.id, props.playerId, response);
         letters.value = response.documents.reduce(
           (acc, { letter, deviceId, trace, capture }) => {
             return {
