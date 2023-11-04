@@ -1,15 +1,11 @@
 <template>
   <div
-    v-if="' ' === props.letter"
-    class="no-capture inline-flex m-2 rounded"
-  ></div>
-  <div
-    v-else-if="props.captures.length < 1"
-    class="no-capture inline-flex m-2 rounded bg-violet-400 text-2xl justify-center items-center"
+    v-if="props.captures.length < 1"
+    class="no-capture me-[12px] rounded border-dashed border-2 border-gray-300 text-gray-300 text-2xl inline-flex justify-center items-center"
   >
     {{ props.letter }}
   </div>
-  <div v-else class="m-2 inline-flex flex flex-wrap">
+  <div v-else class="me-[12px]">
     <SingleLetter
       v-for="({ trace, capture }, i) of props.captures"
       :key="i"

@@ -1,17 +1,23 @@
 <template>
   <div class="letter-container">
-    <img :src="captureUrl" width="128" height="128" />
-    <img :src="traceUrl" width="128" height="128" class="relative traced" />
+    <img :src="captureUrl" :width="size" :height="size" class="rounded" />
+    <img
+      :src="traceUrl"
+      :width="size"
+      :height="size"
+      class="relative rounded trace"
+    />
   </div>
 </template>
 
 <script setup>
-import { inject, onMounted, ref } from "vue";
+import { computed, inject, onMounted, ref } from "vue";
 
 const props = defineProps({
   letter: { type: String, required: true },
   trace: { type: String, required: true },
   capture: { type: String, required: true },
+  size: { type: Number, default: 128 },
 });
 
 const traceUrl = ref(null);
@@ -22,28 +28,36 @@ const capturesBuc = inject("captures-bucket");
 
 const storage = inject("appwrite-storage");
 
+const sizePixels = computed(() => {
+  return `${props.size}px`;
+});
+
+const sizeNegPixels = computed(() => {
+  return `-${props.size}px`;
+});
+
 onMounted(() => {
   traceUrl.value = storage.getFilePreview(
     tracesBuc,
     props.trace,
-    128,
-    128,
+    props.size,
+    props.size,
   ).href;
   captureUrl.value = storage.getFilePreview(
     capturesBuc,
     props.capture,
-    128,
-    128,
+    props.size,
+    props.size,
   ).href;
 });
 </script>
 
 <style scoped>
-.traced {
-  top: -128px;
+.trace {
+  top: v-bind(sizeNegPixels);
 }
 
 .letter-container {
-  height: 128px;
+  height: v-bind(sizePixels);
 }
 </style>
