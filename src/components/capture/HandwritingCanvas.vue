@@ -71,7 +71,7 @@
 </template>
 
 <script setup>
-import { Client, Databases, ID, Storage } from "appwrite";
+import { ID } from "appwrite";
 import { computed, inject, onMounted, onUnmounted, ref, watch } from "vue";
 
 const saving = ref(false);
@@ -97,10 +97,11 @@ const size = ref(Math.min(480, window.innerWidth));
 
 const letterOptions = ref([]);
 
-const tracesBuc = inject("tracesBuc");
-const capturesBuc = inject("capturesBuc");
-const mainDb = inject("mainDb");
-const mainDbCapturesCol = inject("mainDbCapturesCol");
+const tracesBucket = inject("traces-bucket");
+const capturesBucket = inject("captures-bucket");
+
+const mainDb = inject("main-db");
+const mainDbCapturesCol = inject("main-db-captures-col");
 
 watch(traceColor, async (newColor) => {
   const ctx = canvas.value.getContext("2d");
@@ -342,15 +343,10 @@ const recognize = () => {
 const saveToBucket = async (letter, trace64) => {
   saving.value = true;
 
-  const client = new Client();
-  const storage = new Storage(client);
-  const databases = new Databases(client);
+  const databases = inject("appwrite-databases");
+  const storage = inject("appwrite-storage");
 
   // Save capture file.
-  client
-    .setEndpoint("https://cloud.appwrite.io/v1")
-    .setProject(import.meta.env.VITE_APPWRITE_PROJECT);
-
   const captureBase64 = await fetch(props.photo);
   const captureBlob = await captureBase64.blob();
   const captureFile = new File([captureBlob], "capture.png", {
@@ -360,16 +356,12 @@ const saveToBucket = async (letter, trace64) => {
   const captureFileId = ID.unique();
 
   const captureUpload = await storage.createFile(
-    capturesBuc,
+    capturesBucket,
     captureFileId,
     captureFile,
   );
 
   // Save trace file.
-  client
-    .setEndpoint("https://cloud.appwrite.io/v1")
-    .setProject(import.meta.env.VITE_APPWRITE_PROJECT);
-
   const traceBase64 = await fetch(trace64);
   const traceBlob = await traceBase64.blob();
   const traceFile = new File([traceBlob], "trace.png", {
@@ -379,7 +371,7 @@ const saveToBucket = async (letter, trace64) => {
   const traceFileId = ID.unique();
 
   const traceUpload = await storage.createFile(
-    tracesBuc,
+    tracesBucket,
     traceFileId,
     traceFile,
   );

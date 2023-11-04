@@ -6,7 +6,6 @@
 </template>
 
 <script setup>
-import { Client, Storage } from "appwrite";
 import { inject, onMounted, ref } from "vue";
 
 const props = defineProps({
@@ -18,15 +17,10 @@ const props = defineProps({
 const traceUrl = ref(null);
 const captureUrl = ref(null);
 
-const client = new Client();
-const storage = new Storage(client);
+const tracesBuc = inject("traces-bucket");
+const capturesBuc = inject("captures-bucket");
 
-client
-  .setEndpoint("https://cloud.appwrite.io/v1")
-  .setProject(import.meta.env.VITE_APPWRITE_PROJECT);
-
-const tracesBuc = inject("tracesBuc");
-const capturesBuc = inject("capturesBuc");
+const storage = inject("appwrite-storage");
 
 onMounted(() => {
   traceUrl.value = storage.getFilePreview(

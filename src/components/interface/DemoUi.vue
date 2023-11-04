@@ -10,18 +10,21 @@
 </template>
 
 <script setup>
-import { Client, Databases } from "appwrite";
 import { computed, inject, onMounted, ref } from "vue";
 import LetterScroll from "../demo/LetterScroll.vue";
 
-const mainDb = inject("mainDb");
-const mainDbCapturesCol = inject("mainDbCapturesCol");
+const props = defineProps({
+  event: { type: Object, required: true },
+});
+
+const mainDb = inject("main-db");
+const mainDbCapturesCol = inject("main-db-captures-col");
 
 const letters = ref();
 
 const loading = ref(false);
 
-const phrase = "Les lettres ont du charactère";
+const phrase = props.event.target;
 
 const phraseLetters = computed(() => {
   const words = phrase.split(" ");
@@ -47,15 +50,10 @@ onMounted(() => {
 const fetchLetters = () => {
   loading.value = true;
 
-  const client = new Client();
-  client
-    .setEndpoint("https://cloud.appwrite.io/v1")
-    .setProject(import.meta.env.VITE_APPWRITE_PROJECT);
+  const databases = inject("appwrite-databases");
 
-  const databases = new Databases(client);
-  const promise = databases.listDocuments(mainDb, mainDbCapturesCol);
-
-  return promise
+  return databases
+    .listDocuments(mainDb, mainDbCapturesCol)
     .then(
       function (response) {
         letters.value = response.documents.reduce(

@@ -14,7 +14,7 @@
 </template>
 
 <script setup>
-import { Client, Databases, Query } from "appwrite";
+import { Query } from "appwrite";
 import { inject, onMounted, ref } from "vue";
 import LetterGroup from "../common/LetterGroup.vue";
 
@@ -22,8 +22,8 @@ const props = defineProps({
   event: { type: Object, required: true },
 });
 
-const mainDb = inject("mainDb");
-const mainDbCapturesCol = inject("mainDbCapturesCol");
+const mainDb = inject("main-db");
+const mainDbCapturesCol = inject("main-db-captures-col");
 
 const letters = ref();
 
@@ -36,17 +36,12 @@ onMounted(() => {
 const fetchLetters = () => {
   loading.value = true;
 
-  const client = new Client();
-  client
-    .setEndpoint("https://cloud.appwrite.io/v1")
-    .setProject(import.meta.env.VITE_APPWRITE_PROJECT);
+  const databases = inject("appwrite-databases");
 
-  const databases = new Databases(client);
-  const promise = databases.listDocuments(mainDb, mainDbCapturesCol, [
-    Query.equal("event", props.event.id),
-  ]);
-
-  return promise
+  return databases
+    .listDocuments(mainDb, mainDbCapturesCol, [
+      Query.equal("event", props.event.id),
+    ])
     .then(
       function (response) {
         letters.value = response.documents.reduce(
