@@ -73,7 +73,7 @@ const loadFromUrl = () => {
     }
 
     // Clear URL.
-    window.location.search = "";
+    // window.location.search = "";
   }
 };
 
