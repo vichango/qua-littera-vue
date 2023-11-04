@@ -8,7 +8,7 @@
         <div class="w-full flex flex-col lg:flex-row h-screen">
           <div class="lg:basis-1/2">
             <YourLetters :event="props.event" :player-id="props.playerId" />
-            <qrcode-vue :value="url" :size="128" level="L" />
+            <qrcode-vue :value="url" level="L" />
             <pre>{{ url }}</pre>
           </div>
           <div class="lg:basis-1/2">

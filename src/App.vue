@@ -53,6 +53,9 @@ const loadFromUrl = () => {
   eventId.value = search.get("eid");
   playerId.value = search.get("pid");
 
+  console.log("URL event: ", eventId.value);
+  console.log("URL player:", playerId.value);
+
   if (null !== eventId.value || null !== playerId.value) {
     const storedEventId = localStorage.getItem("event-id");
     if (null !== eventId.value && storedEventId !== eventId.value) {
@@ -108,7 +111,6 @@ const loadFromStorage = () => {
         if (null === playerId.value) {
           playerId.value = uuidv4();
           localStorage.setItem("player-id", playerId.value);
-
           console.log("Stored new player: ", playerId.value);
         }
       })
