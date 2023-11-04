@@ -1,5 +1,5 @@
 <template>
-  <div v-if="open" class="flex flex-wrap">
+  <div v-if="open" class="flex flex-wrap m-2">
     <SingleLetter
       v-for="(capture, index) of props.captures"
       :key="index"
@@ -25,7 +25,7 @@
 
 <script setup>
 import { ref } from "vue";
-import SingleLetter from "./SingleLetter.vue";
+import SingleLetter from "../common/SingleLetter.vue";
 
 const open = ref(false);
 
