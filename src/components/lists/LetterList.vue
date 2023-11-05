@@ -6,6 +6,7 @@
       :letter="letter"
       :captures="letterCaptures"
       :player-id="props.playerId"
+      @refresh="relayRefresh"
     />
   </div>
 </template>
@@ -29,11 +30,17 @@ const letters = computed(() => {
   }, {});
 });
 
+const emit = defineEmits(["refresh"]);
+
 const props = defineProps({
   event: { type: Object, required: true },
   playerId: { type: String, required: true },
   captures: { type: Array, required: true },
 });
+
+const relayRefresh = () => {
+  emit("refresh");
+};
 </script>
 
 <style scoped>

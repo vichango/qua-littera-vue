@@ -7,7 +7,11 @@
     />
     <div class="flex flex-col md:flex-row w-full">
       <div class="w-full md:basis-1/2">
-        <CaptureMain :event="props.event" :player-id="props.playerId" />
+        <CaptureMain
+          :event="props.event"
+          :player-id="props.playerId"
+          @refresh="doRefresh"
+        />
       </div>
       <div class="flex w-full md:basis-1/2">
         <div class="w-full flex flex-col lg:flex-row h-screen">
@@ -21,6 +25,7 @@
               :event="props.event"
               :player-id="props.playerId"
               :captures="yourLetters"
+              @refresh="doRefresh"
             />
           </div>
           <div class="lg:basis-1/2">
@@ -33,6 +38,7 @@
               :event="event"
               :player-id="props.playerId"
               :captures="allLetters"
+              @refresh="doRefresh"
             />
           </div>
         </div>
@@ -66,11 +72,15 @@ const playerUrl = computed(() => {
 });
 
 onMounted(() => {
-  fetchYourLetters();
-  fetchAllLetters();
+  doRefresh();
 });
 
 const databases = inject("appwrite-databases");
+
+const doRefresh = () => {
+  fetchYourLetters();
+  fetchAllLetters();
+};
 
 const fetchYourLetters = () => {
   return databases
@@ -93,7 +103,7 @@ const fetchYourLetters = () => {
         );
       },
       function (error) {
-        console.log(error);
+        console.error(error);
       },
     );
 };
@@ -118,7 +128,7 @@ const fetchAllLetters = () => {
         );
       },
       function (error) {
-        console.log(error);
+        console.error(error);
       },
     );
 };

@@ -5,11 +5,12 @@ import "./assets/main.css";
 
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { faCamera, faFloppyDisk, faPlay, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faCamera, faFloppyDisk, faPlay, faTrash, faMinimize } from '@fortawesome/free-solid-svg-icons';
 library.add(faCamera);
 library.add(faPlay);
 library.add(faTrash);
 library.add(faFloppyDisk);
+library.add(faMinimize);
 
 import Vue3ColorPicker from "vue3-colorpicker";
 import "vue3-colorpicker/style.css";

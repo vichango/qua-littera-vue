@@ -2,10 +2,11 @@
   <div v-if="open" class="flex flex-wrap m-2">
     <SingleLetter
       v-for="(capture, index) of props.captures"
-      :key="index"
+      :key="`sl-${index}`"
       :capture="capture"
       :player-id="props.playerId"
       @click="toggle"
+      @refresh="relayRefresh"
     />
   </div>
   <div
@@ -27,6 +28,8 @@
 import { ref } from "vue";
 import SingleLetter from "../common/SingleLetter.vue";
 
+const emit = defineEmits(["refresh"]);
+
 const open = ref(false);
 
 const props = defineProps({
@@ -37,6 +40,10 @@ const props = defineProps({
 
 const toggle = () => {
   open.value = !open.value;
+};
+
+const relayRefresh = () => {
+  emit("refresh");
 };
 </script>
 

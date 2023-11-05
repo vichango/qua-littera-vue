@@ -82,7 +82,7 @@ const props = defineProps({
   deviceId: { type: String, required: true },
 });
 
-const emit = defineEmits(["reset"]);
+const emit = defineEmits(["reset", "refresh"]);
 
 const canvas = ref(null);
 const drawing = ref(false);
@@ -154,8 +154,10 @@ const negativeSizePx = computed(() => {
 
 const traced = (letter) => {
   const traced64 = canvas.value.toDataURL("image/png");
-  saveToBucket(letter, traced64);
-  erase();
+  saveToBucket(letter, traced64).then(() => {
+    emit("refresh");
+    erase();
+  });
 };
 
 const goBack = () => {
@@ -218,12 +220,8 @@ const mouseUp = () => {
   w.push(handwritingY.value);
   w.push([]);
 
-  console.log("Pushing to trace: ", w);
-
   trace.value.push(w);
   drawing.value = false;
-
-  console.log("Trace: ", trace.value);
 };
 
 const touchStart = (e) => {
@@ -308,7 +306,7 @@ const recognize = () => {
         const response = JSON.parse(xhr.responseText);
         let results;
         if (response.length === 1) {
-          console.log(undefined, new Error(response[0]));
+          console.warning(undefined, new Error(response[0]));
         } else {
           results = response[1][0][1];
         }
@@ -321,13 +319,13 @@ const recognize = () => {
           results = results.slice(0, options.numOfReturn);
         }
         letterOptions.value = results;
-        console.log(results, undefined);
+        console.warning(results, undefined);
       } else if (xhr.status === 403) {
         letterOptions.value = [];
-        console.log(undefined, new Error("access denied"));
+        console.warning(undefined, new Error("access denied"));
       } else if (xhr.status === 503) {
         letterOptions.value = [];
-        console.log(
+        console.warning(
           undefined,
           new Error("can't connect to recognition server"),
         );
@@ -379,22 +377,15 @@ const saveToBucket = async (letter, trace64) => {
   // Save entry in database.
   const documentId = ID.unique();
 
-  const respose = await databases.createDocument(
-    mainDb,
-    mainDbCapturesCol,
-    documentId,
-    {
-      letter,
-      trace: traceUpload.$id,
-      capture: captureUpload.$id,
-      event: props.event.id,
-      device: props.deviceId,
-    },
-  );
+  await databases.createDocument(mainDb, mainDbCapturesCol, documentId, {
+    letter,
+    trace: traceUpload.$id,
+    capture: captureUpload.$id,
+    event: props.event.id,
+    device: props.deviceId,
+  });
 
   saving.value = false;
-
-  console.log(respose);
 };
 </script>
 
