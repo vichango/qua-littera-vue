@@ -1,10 +1,5 @@
 <template>
   <div v-if="event && playerId" class="flex h-screen">
-    <qrcode-vue
-      :value="playerUrl"
-      level="L"
-      :style="{ position: 'absolute', bottom: '12px', right: '12px' }"
-    />
     <div class="flex flex-col md:flex-row w-full">
       <div class="w-full md:basis-1/2">
         <CaptureMain
@@ -49,8 +44,7 @@
 
 <script setup>
 import { Query } from "appwrite";
-import QrcodeVue from "qrcode.vue";
-import { computed, inject, onMounted, ref } from "vue";
+import { inject, onMounted, ref } from "vue";
 import CaptureMain from "../capture/CaptureMain.vue";
 import LetterList from "../lists/LetterList.vue";
 
@@ -64,12 +58,6 @@ const allLetters = ref();
 
 const mainDb = inject("main-db");
 const mainDbCapturesCol = inject("main-db-captures-col");
-
-const playerUrl = computed(() => {
-  return `${import.meta.env.VITE_SERVER_URL}/?eid=${props.event.id}&pid=${
-    props.playerId
-  }`;
-});
 
 onMounted(() => {
   doRefresh();

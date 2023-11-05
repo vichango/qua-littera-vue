@@ -14,6 +14,7 @@ import { computed, inject, onMounted, provide, ref } from "vue";
 import DemoUi from "./components/interface/DemoUi.vue";
 import NotFound from "./components/interface/NotFound.vue";
 import PlayerUi from "./components/interface/PlayerUi.vue";
+import QrCodeUi from "./components/interface/QrCodeUi.vue";
 
 const mainDb = inject("main-db");
 const mainDbEventsCol = inject("main-db-events-col");
@@ -26,6 +27,7 @@ const playerId = ref(null);
 
 const routes = {
   "/": PlayerUi,
+  "/qr": QrCodeUi,
   "/demo": DemoUi,
 };
 
