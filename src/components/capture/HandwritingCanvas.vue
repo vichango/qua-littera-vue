@@ -46,8 +46,19 @@
           <font-awesome-icon icon="fa-solid fa-floppy-disk" />
         </button>
         <button
+          v-else-if="!ready"
+          class="border-2 border-green-300 font-bold py-2 px-4 m-2 rounded text-green-300"
+          disabled
+        >
+          C'est prêt
+        </button>
+        <button
           v-else
-          class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded"
+          :class="[
+            'border-2 border-green-500 font-bold py-2 px-4 m-2 rounded',
+            ready ? 'text-green-500' : 'bg-green-200 text-green-0',
+          ]"
+          :disabled="!ready"
           @click="recognize"
         >
           C'est prêt
@@ -84,6 +95,8 @@ const props = defineProps({
 
 const emit = defineEmits(["reset", "refresh"]);
 
+const ready = ref(false);
+
 const canvas = ref(null);
 const drawing = ref(false);
 const handwritingX = ref([]);
@@ -105,6 +118,33 @@ const mainDbCapturesCol = inject("main-db-captures-col");
 
 const databases = inject("appwrite-databases");
 const storage = inject("appwrite-storage");
+
+const traceBox = computed(() => {
+  const box = {
+    minX: null,
+    minY: null,
+    maxX: null,
+    maxY: null,
+  };
+
+  for (let i = 0; i < trace.value.length; i++) {
+    const [xStack, yStack] = trace.value[i];
+
+    if (xStack.length > 0 && yStack.length > 0) {
+      for (let j = 1; j < xStack.length; j++) {
+        const x = xStack[j];
+        if (null === box.minX || x < box.minX) box.minX = x;
+        if (null === box.maxX || x > box.maxX) box.maxX = x;
+
+        const y = yStack[j];
+        if (null === box.minY || y < box.minY) box.minY = y;
+        if (null === box.maxY || y > box.maxY) box.maxY = y;
+      }
+    }
+  }
+
+  return box;
+});
 
 watch(traceColor, async (newColor) => {
   const ctx = canvas.value.getContext("2d");
@@ -222,6 +262,8 @@ const mouseUp = () => {
 
   trace.value.push(w);
   drawing.value = false;
+
+  ready.value = true;
 };
 
 const touchStart = (e) => {
@@ -267,6 +309,8 @@ const touchEnd = (e) => {
   w.push([]);
   trace.value.push(w);
   drawing.value = false;
+
+  ready.value = true;
 };
 
 const erase = () => {
@@ -275,12 +319,25 @@ const erase = () => {
   ctx.clearRect(0, 0, 480, 480);
   trace.value = [];
 
+  ready.value = false;
+
   letterOptions.value = [];
 };
 
 const recognize = () => {
+  // Handle case when there's no trace yet.
   if (trace.value.length === 0) {
-    return; // Handle case when there's no trace
+    // TODO Alert or disable
+    return;
+  }
+
+  // Handle case when the trace is less than half the size of the picture.
+  if (
+    traceBox.value.maxX - traceBox.value.minX < 240 &&
+    traceBox.value.maxY - traceBox.value.minY < 240
+  ) {
+    // TODO Alert
+    return;
   }
 
   const options = {};
