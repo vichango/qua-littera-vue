@@ -5,6 +5,7 @@
     :event="event"
     :player-id="playerId"
   />
+  <MissingEvent v-else-if="null === eventId" />
 </template>
 
 <script setup>
@@ -12,6 +13,7 @@ import { Client, Databases, Storage } from "appwrite";
 import { v4 as uuidv4 } from "uuid";
 import { computed, inject, onMounted, provide, ref } from "vue";
 import DemoUi from "./components/interface/DemoUi.vue";
+import MissingEvent from "./components/interface/MissingEvent.vue";
 import NotFound from "./components/interface/NotFound.vue";
 import PlayerUi from "./components/interface/PlayerUi.vue";
 import QrCodeUi from "./components/interface/QrCodeUi.vue";
@@ -45,17 +47,27 @@ onMounted(() => {
   loadFromUrl();
   provideAppWrtie();
   loadFromStorage();
+
+  provideMode();
 });
 
 const loadFromUrl = () => {
   const location = window.location;
   const search = new URLSearchParams(location.search);
 
+  // Turn admin on/off.
+  const mode = search.get("mode");
+  if ("god" === mode) {
+    localStorage.setItem("godmode", 1);
+  } else if (null !== mode) {
+    localStorage.removeItem("godmode");
+  }
+
   // Update event and player from URL.
   eventId.value = search.get("eid");
   playerId.value = search.get("pid");
 
-  if (null !== eventId.value || null !== playerId.value) {
+  if (null !== eventId.value || null !== playerId.value || null !== mode) {
     const storedEventId = localStorage.getItem("event-id");
     if (null !== eventId.value && storedEventId !== eventId.value) {
       localStorage.setItem("event-id", eventId.value);
@@ -110,6 +122,11 @@ const loadFromStorage = () => {
         localStorage.removeItem("player-id");
       });
   }
+};
+
+const provideMode = () => {
+  const mode = localStorage.getItem("godmode") ? "godmode" : "normal";
+  provide("mode", mode);
 };
 
 const fetchEvent = (eventId) => {

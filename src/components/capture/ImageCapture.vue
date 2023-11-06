@@ -15,12 +15,18 @@
 
     <div v-if="capturing" class="w-full flex justify-center">
       <button
-        class="border-2 border-blue-500 text-blue-500 font-bold py-2 px-4 m-2 rounded"
+        class="border-2 border-blue-500 text-blue-500 text-lg font-bold py-2 px-4 m-6 rounded"
         @click="capture"
       >
-        Capture
+        Capturer
         <font-awesome-icon icon="fa-solid fa-camera" class="ms-3" />
       </button>
+    </div>
+
+    <div v-if="capturing" class="w-full flex justify-center">
+      <p class="text-blue-400">
+        À toi! Saisis quelque chose qui a la forme d'une lettre!
+      </p>
     </div>
   </div>
 </template>

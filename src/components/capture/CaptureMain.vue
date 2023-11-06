@@ -3,12 +3,16 @@
     <div class="placeholder p-4 my-0 mx-auto overflow-hidden bg-blue-400"></div>
     <div class="w-full flex justify-center">
       <button
-        class="border-2 border-blue-500 text-blue-500 font-bold py-2 px-4 m-2 rounded"
+        class="border-2 border-blue-500 text-blue-500 font-bold py-2 px-4 m-6 rounded"
         @click="doing = 'capture'"
       >
         Démarrer
         <font-awesome-icon icon="fa-solid fa-play" class="ms-3" />
       </button>
+    </div>
+
+    <div class="w-full flex justify-center">
+      <p class="text-blue-400">Clique pour commencer</p>
     </div>
   </div>
   <ImageCapture v-else-if="'capture' === doing" @captured="customSave" />

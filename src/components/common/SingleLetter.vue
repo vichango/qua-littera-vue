@@ -14,7 +14,7 @@
       class="relative rounded trace"
     />
     <button
-      v-if="props.playerId === props.capture.player"
+      v-if="isGod || props.playerId === props.capture.player"
       class="remove action relative inline-flex items-center justify-center text-violet-600 bg-violet-300 rounded-full"
       @click.stop="deleteCapture"
     >
@@ -48,6 +48,8 @@ const databases = inject("appwrite-databases");
 
 const actionSize = 32;
 
+const isGod = "godmode" === inject("mode");
+
 const sizePixels = computed(() => {
   return `${props.size}px`;
 });
@@ -75,6 +77,7 @@ onMounted(() => {
     props.size,
     props.size,
   ).href;
+
   captureUrl.value = storage.getFilePreview(
     capturesBucket,
     props.capture.capture,

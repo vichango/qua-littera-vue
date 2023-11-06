@@ -29,11 +29,13 @@ const captures = ref();
 const loading = ref(false);
 
 const targetWords = computed(() => {
-  return props.event.target
-    .toUpperCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .split(" ");
+  return (
+    props.event.target
+      .toUpperCase()
+      // .normalize("NFD")
+      // .replace(/[\u0300-\u036f]/g, "")
+      .split(" ")
+  );
 });
 
 onMounted(() => {

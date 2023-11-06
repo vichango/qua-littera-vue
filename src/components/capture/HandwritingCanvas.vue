@@ -18,14 +18,14 @@
     <div class="flex justify-center">
       <div class="w-full max-w-[480px] flex">
         <button
-          class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded"
+          class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 mx-2 my-6 rounded"
           :disabled="saving ? 'disabled' : false"
           @click="goBack"
         >
           <font-awesome-icon icon="fa-solid fa-camera" />
         </button>
         <button
-          class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded"
+          class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 mx-2 my-6 rounded"
           :disabled="saving ? 'disabled' : false"
           @click="erase"
         >
@@ -33,21 +33,21 @@
         </button>
         <div
           v-if="!saving"
-          class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded ms-4 me-8"
+          class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 mx-2 my-6 rounded ms-4 me-8"
         >
           <color-picker v-model:pureColor="traceColor" class="rounded-full" />
         </div>
 
         <button
           v-if="saving"
-          class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 m-2 rounded"
+          class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 mx-2 my-6 rounded"
         >
           Enreg.
           <font-awesome-icon icon="fa-solid fa-floppy-disk" />
         </button>
         <button
           v-else-if="!ready"
-          class="border-2 border-green-300 font-bold py-2 px-4 m-2 rounded text-green-300"
+          class="border-2 border-green-300 font-bold py-2 px-4 mx-2 my-6 rounded text-green-300"
           disabled
         >
           C'est prêt
@@ -55,7 +55,7 @@
         <button
           v-else
           :class="[
-            'border-2 border-green-500 font-bold py-2 px-4 m-2 rounded',
+            'border-2 border-green-500 font-bold py-2 px-4 mx-2 my-6 rounded',
             ready ? 'text-green-500' : 'bg-green-200 text-green-0',
           ]"
           :disabled="!ready"
@@ -65,18 +65,35 @@
         </button>
       </div>
     </div>
-    <div
-      v-if="letterOptions.length"
-      class="w-full h-auto flex flex-wrap justify-center my-2"
-    >
+
+    <div v-if="0 === trace.length">
+      <div class="w-full flex justify-center">
+        <p class="text-green-400">Montre-nous la lettre que tu as vu!</p>
+      </div>
+    </div>
+    <div v-else-if="!ready">
+      <div class="w-full flex justify-center">
+        <p class="text-green-400">Ton dessin est encore trop petit …</p>
+      </div>
+    </div>
+    <div v-else-if="letterOptions && 0 === letterOptions.length">
+      <div class="w-full flex justify-center">
+        <p class="text-green-400">J'ai pas compris</p>
+      </div>
+    </div>
+    <div v-else class="w-full h-auto flex flex-wrap justify-center my-2">
       <button
         v-for="(letter, index) of letterOptions"
         :key="index"
-        class="bg-green-500 text-green-100 font-bold py-2 px-4 m-1 text-xl rounded"
+        class="bg-green-500 text-green-100 font-bold py-2 px-4 mx-1 my-4 text-xl rounded"
         @click="traced(letter)"
       >
         {{ letter }}
       </button>
+
+      <div class="w-full flex justify-center">
+        <p class="text-green-400">Ai-je trouvé plus ou moins?</p>
+      </div>
     </div>
   </div>
 </template>
@@ -95,7 +112,12 @@ const props = defineProps({
 
 const emit = defineEmits(["reset", "refresh"]);
 
-const ready = ref(false);
+const ready = computed(() => {
+  const traceWidth = traceBox.value.maxX - traceBox.value.minX;
+  const traceHeight = traceBox.value.maxY - traceBox.value.minY;
+
+  return 0 < trace.value.length && (traceWidth > 120 || traceHeight > 120);
+});
 
 const canvas = ref(null);
 const drawing = ref(false);
@@ -108,7 +130,7 @@ const traceColor = ref("#000000");
 
 const size = ref(Math.min(480, window.innerWidth));
 
-const letterOptions = ref([]);
+const letterOptions = ref(null);
 
 const tracesBucket = inject("traces-bucket");
 const capturesBucket = inject("captures-bucket");
@@ -262,8 +284,6 @@ const mouseUp = () => {
 
   trace.value.push(w);
   drawing.value = false;
-
-  ready.value = true;
 };
 
 const touchStart = (e) => {
@@ -309,8 +329,6 @@ const touchEnd = (e) => {
   w.push([]);
   trace.value.push(w);
   drawing.value = false;
-
-  ready.value = true;
 };
 
 const erase = () => {
@@ -319,28 +337,15 @@ const erase = () => {
   ctx.clearRect(0, 0, 480, 480);
   trace.value = [];
 
-  ready.value = false;
-
-  letterOptions.value = [];
+  letterOptions.value = null;
 };
 
 const recognize = () => {
-  // Handle case when there's no trace yet.
-  if (trace.value.length === 0) {
-    // TODO Alert or disable
-    return;
-  }
-
-  // Handle case when the trace is less than half the size of the picture.
-  if (
-    traceBox.value.maxX - traceBox.value.minX < 240 &&
-    traceBox.value.maxY - traceBox.value.minY < 240
-  ) {
-    // TODO Alert
-    return;
-  }
-
-  const options = {};
+  const options = {
+    upperCase: true,
+    // removeAccents: true,
+    singleLetter: true,
+  };
 
   const data = JSON.stringify({
     options: "enable_pre_space",
@@ -351,7 +356,7 @@ const recognize = () => {
           writing_area_height: 480,
         },
         ink: trace.value,
-        language: options.language || "fr",
+        language: options.language || "fr_FR",
       },
     ],
   });
@@ -361,31 +366,62 @@ const recognize = () => {
     if (xhr.readyState === 4) {
       if (xhr.status === 200) {
         const response = JSON.parse(xhr.responseText);
+
         let results;
         if (response.length === 1) {
-          console.warning(undefined, new Error(response[0]));
+          console.warn(undefined, new Error(response[0]));
         } else {
           results = response[1][0][1];
         }
+
         if (options.numOfWords) {
           results = results.filter(
             (result) => result.length === options.numOfWords,
           );
         }
+
         if (options.numOfReturn) {
           results = results.slice(0, options.numOfReturn);
         }
+
+        if (options.upperCase) {
+          results = results
+            .map((result) => result.toUpperCase())
+            .filter(function (item, pos, arr) {
+              return arr.indexOf(item) == pos;
+            });
+        }
+
+        if (options.removeAccents) {
+          results = results
+            .map((result) =>
+              result.normalize("NFD").replace(/[\u0300-\u036f]/g, ""),
+            )
+            .filter(function (item, pos, arr) {
+              return arr.indexOf(item) == pos;
+            });
+        }
+
+        if (options.singleLetter) {
+          results = results
+            .map((result) => result.substring(0, 1))
+            .filter(function (item, pos, arr) {
+              return arr.indexOf(item) == pos;
+            });
+        }
+
         letterOptions.value = results;
-        console.warning(results, undefined);
       } else if (xhr.status === 403) {
+        console.warn(undefined, new Error("access denied"));
+
         letterOptions.value = [];
-        console.warning(undefined, new Error("access denied"));
       } else if (xhr.status === 503) {
-        letterOptions.value = [];
-        console.warning(
+        console.warn(
           undefined,
           new Error("can't connect to recognition server"),
         );
+
+        letterOptions.value = [];
       }
     }
   });
