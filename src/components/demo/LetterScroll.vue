@@ -7,11 +7,10 @@
   </div>
   <div v-else class="me-[12px]">
     <SingleLetter
-      v-for="({ trace, capture }, i) of props.captures"
+      v-for="(capture, i) of props.captures"
       :key="i"
       :class="index === i ? '' : 'hidden'"
       :letter="props.letter"
-      :trace="trace"
       :capture="capture"
       @click="toggle"
     />

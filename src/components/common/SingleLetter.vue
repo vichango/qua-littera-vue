@@ -2,6 +2,7 @@
   <div class="letter-container">
     <img :src="captureUrl" :width="size" :height="size" class="rounded" />
     <div
+      v-if="playerId"
       data-v-f9a97fe0=""
       class="minimize action relative inline-flex items-center justify-center text-gray-600 rounded-full"
     >
@@ -29,7 +30,7 @@ import { computed, inject, onMounted, ref } from "vue";
 const props = defineProps({
   size: { type: Number, default: 128 },
   capture: { type: Object, required: true },
-  playerId: { type: String, required: true },
+  playerId: { type: String, default: null },
 });
 
 const emit = defineEmits(["refresh"]);
@@ -55,7 +56,7 @@ const sizePixels = computed(() => {
 });
 
 const traceTop = computed(() => {
-  return `-${props.size + actionSize}px`;
+  return `-${props.size + (props.playerId ? actionSize : 0)}px`;
 });
 
 const sizeNegPixels = computed(() => {
@@ -63,7 +64,7 @@ const sizeNegPixels = computed(() => {
 });
 
 const removeActionTop = computed(() => {
-  return `-${props.size + 2 * actionSize}px`;
+  return `-${props.size + (props.playerId ? 2 : 1) * actionSize}px`;
 });
 
 const removeActionLeft = computed(() => {

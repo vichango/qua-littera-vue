@@ -12,7 +12,7 @@
     </div>
 
     <div class="w-full flex justify-center">
-      <p class="text-blue-400">Clique pour commencer</p>
+      <p class="text-blue-400">Fais clic pour commencer</p>
     </div>
   </div>
   <ImageCapture v-else-if="'capture' === doing" @captured="customSave" />
