@@ -24,7 +24,7 @@
     </div>
 
     <div v-if="capturing" class="w-full flex justify-center">
-      <p class="text-blue-400">
+      <p class="text-blue-400 my-6 px-4 text-center">
         À toi! Saisis quelque chose qui a la forme d'une lettre!
       </p>
     </div>

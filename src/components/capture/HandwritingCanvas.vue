@@ -46,7 +46,7 @@
           <font-awesome-icon icon="fa-solid fa-floppy-disk" />
         </button>
         <button
-          v-else-if="!ready"
+          v-else-if="!traceReady"
           class="border-2 border-green-300 font-bold py-2 px-4 mx-2 my-6 rounded text-green-300"
           disabled
         >
@@ -56,9 +56,9 @@
           v-else
           :class="[
             'border-2 border-green-500 font-bold py-2 px-4 mx-2 my-6 rounded',
-            ready ? 'text-green-500' : 'bg-green-200 text-green-0',
+            traceReady ? 'text-green-500' : 'bg-green-200 text-green-0',
           ]"
-          :disabled="!ready"
+          :disabled="!traceReady"
           @click="recognize"
         >
           C'est prêt
@@ -66,22 +66,29 @@
       </div>
     </div>
 
-    <div v-if="0 === trace.length">
+    <div v-if="!traceNotEmpty">
       <div class="w-full flex justify-center">
-        <p class="text-green-400">Montre-nous la lettre que tu as vu!</p>
+        <p class="text-green-400 my-6 px-4 text-center">
+          Dessine la lettre que tu as vu!
+        </p>
       </div>
     </div>
-    <div v-else-if="!ready">
+    <div v-else-if="!traceBigEnough">
       <div class="w-full flex justify-center">
-        <p class="text-green-400">Ton dessin est encore trop petit …</p>
+        <p class="text-green-400 my-6 px-4 text-center">
+          Ton dessin est encore trop petit …
+        </p>
       </div>
     </div>
     <div v-else-if="letterOptions && 0 === letterOptions.length">
       <div class="w-full flex justify-center">
-        <p class="text-green-400">J'ai pas compris</p>
+        <p class="text-green-400 my-6 px-4 text-center">J'ai pas compris</p>
       </div>
     </div>
-    <div v-else class="w-full h-auto flex flex-wrap justify-center my-2">
+    <div
+      v-else-if="letterOptions"
+      class="w-full h-auto flex flex-wrap justify-center my-2"
+    >
       <button
         v-for="(letter, index) of letterOptions"
         :key="index"
@@ -92,7 +99,9 @@
       </button>
 
       <div class="w-full flex justify-center">
-        <p class="text-green-400">Ai-je trouvé plus ou moins?</p>
+        <p class="text-green-400 my-6 px-4 text-center">
+          Quelle lettre est juste?
+        </p>
       </div>
     </div>
   </div>
@@ -100,7 +109,7 @@
 
 <script setup>
 import { ID } from "appwrite";
-import { computed, inject, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, inject, onMounted, onUnmounted, ref } from "vue";
 
 const saving = ref(false);
 
@@ -111,13 +120,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["reset", "refresh"]);
-
-const ready = computed(() => {
-  const traceWidth = traceBox.value.maxX - traceBox.value.minX;
-  const traceHeight = traceBox.value.maxY - traceBox.value.minY;
-
-  return 0 < trace.value.length && (traceWidth > 120 || traceHeight > 120);
-});
 
 const canvas = ref(null);
 const drawing = ref(false);
@@ -140,6 +142,21 @@ const mainDbCapturesCol = inject("main-db-captures-col");
 
 const databases = inject("appwrite-databases");
 const storage = inject("appwrite-storage");
+
+const traceReady = computed(() => {
+  return traceNotEmpty.value && traceBigEnough;
+});
+
+const traceNotEmpty = computed(() => {
+  return 0 < trace.value.length;
+});
+
+const traceBigEnough = computed(() => {
+  const traceWidth = traceBox.value.maxX - traceBox.value.minX;
+  const traceHeight = traceBox.value.maxY - traceBox.value.minY;
+
+  return traceWidth > 120 || traceHeight > 120;
+});
 
 const traceBox = computed(() => {
   const box = {
@@ -166,31 +183,6 @@ const traceBox = computed(() => {
   }
 
   return box;
-});
-
-watch(traceColor, async (newColor) => {
-  const ctx = canvas.value.getContext("2d");
-  ctx.clearRect(0, 0, 480, 480);
-  ctx.strokeStyle = newColor;
-
-  for (let i = 0; i < trace.value.length; i++) {
-    const [xStack, yStack] = trace.value[i];
-
-    if (xStack.length > 0 && yStack.length > 0) {
-      const x = xStack[0];
-      const y = yStack[0];
-
-      ctx.moveTo(x, y);
-
-      for (let j = 1; j < xStack.length; j++) {
-        const x = xStack[j];
-        const y = yStack[j];
-
-        ctx.lineTo(x, y);
-        ctx.stroke();
-      }
-    }
-  }
 });
 
 onMounted(() => {

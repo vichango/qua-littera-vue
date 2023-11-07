@@ -1,5 +1,5 @@
 <template>
-  <div v-if="event && playerId" class="flex h-screen">
+  <div v-if="event && playerId" class="flex md:h-screen">
     <div class="flex flex-col md:flex-row w-full">
       <div class="w-full md:basis-1/2">
         <CaptureMain
@@ -9,7 +9,7 @@
         />
       </div>
       <div class="flex w-full md:basis-1/2">
-        <div class="w-full flex flex-col lg:flex-row h-screen">
+        <div class="w-full flex flex-col lg:flex-row">
           <div class="lg:basis-1/2">
             <h1 class="text-2xl align-center text-violet-600 p-2 pb-4">
               Tes captures
