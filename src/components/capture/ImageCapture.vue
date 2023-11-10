@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-blue-200 md:h-screen">
+  <div class="bg-blue-200 md:h-screen py-6">
     <canvas
       ref="canvas"
       class="p-0 my-0 mx-auto cursor-crosshair relative rounded"
@@ -15,7 +15,8 @@
 
     <div v-if="capturing" class="w-full flex justify-center">
       <button
-        class="border-2 border-blue-500 text-blue-500 text-lg font-bold py-2 px-4 m-6 rounded"
+        class="border-2 border-blue-500 text-blue-500 text-lg font-bold py-2 px-4 m-6 rounded disabled:opacity-25"
+        :disabled="!ready"
         @click="capture"
       >
         Capturer
@@ -61,6 +62,8 @@ const resizeCanvas = () => {
   size.value = Math.min(480, window.innerWidth);
 };
 
+const ready = ref(false);
+
 const stopStream = () => {
   const stream = video.value.srcObject;
   const tracks = stream.getTracks();
@@ -69,6 +72,8 @@ const stopStream = () => {
   });
 
   video.value.srcObject = null;
+
+  ready.value = false;
 };
 
 const startStream = () => {
@@ -81,6 +86,8 @@ const startStream = () => {
       video.value.addEventListener("canplay", () => {
         canvas.value.width = size.value;
         canvas.value.height = size.value;
+
+        ready.value = true;
       });
     });
 };

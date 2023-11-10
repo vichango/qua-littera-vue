@@ -1,0 +1,376 @@
+<template>
+  <div class="bg-green-200 md:h-screen pt-6">
+    <div class="w-full canvas-box">
+      <img
+        ref="photo"
+        class="p-4 my-0 mx-auto bg-green-400 rounded"
+        :width="size"
+        :height="size"
+        :src="props.photo"
+      />
+      <HandWritingCanvas
+        :trace="trace"
+        :size="size"
+        :line-width="lineWidth"
+        :trace-color="traceColor"
+        @traced="updateTrace"
+      />
+    </div>
+
+    <div class="w-full mx-auto max-w-[480px] flex justify-center">
+      <div class="h-8 w-16 bg-green-400 text-center rounded-b">
+        <font-awesome-icon
+          icon="fa-solid fa-paintbrush"
+          class="align-middle me-2 text-green-200"
+        />
+        <color-picker v-model:pureColor="traceColor" />
+      </div>
+    </div>
+
+    <div class="flex justify-center">
+      <div class="w-full max-w-[480px] flex">
+        <div class="w-1/2 text-start">
+          <button
+            class="border-2 border-green-500 text-green-500 font-bold py-2 ps-3 pe-4 rounded"
+            :disabled="saving ? 'disabled' : false"
+            @click="goBack"
+          >
+            <font-awesome-icon
+              icon="fa-solid fa-chevron-left"
+              class="text-green-400 me-2"
+            />
+            <font-awesome-icon icon="fa-solid fa-camera" />
+          </button>
+        </div>
+
+        <div class="w-1/2 text-end">
+          <button
+            class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 me-2 rounded"
+            :disabled="saving ? 'disabled' : false"
+            @click="erase"
+          >
+            <font-awesome-icon icon="fa-solid fa-trash" />
+          </button>
+
+          <button
+            v-if="saving"
+            class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 rounded"
+          >
+            Enreg.
+            <font-awesome-icon icon="fa-solid fa-floppy-disk" />
+          </button>
+          <button
+            v-else-if="!traceReady"
+            class="border-2 border-green-300 font-bold py-2 px-4 rounded text-green-300"
+            disabled
+          >
+            C'est prêt
+          </button>
+          <button
+            v-else
+            :class="[
+              'border-2 border-green-500 font-bold py-2 px-4 rounded',
+              traceReady ? 'text-green-500' : 'bg-green-200 text-green-0',
+            ]"
+            :disabled="!traceReady"
+            @click="recognize"
+          >
+            C'est prêt
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="!traceNotEmpty">
+      <div class="w-full flex justify-center">
+        <p class="text-green-400 my-6 px-4 text-center">
+          Dessine la lettre que tu as vu!
+        </p>
+      </div>
+    </div>
+    <div v-else-if="!traceBigEnough">
+      <div class="w-full flex justify-center">
+        <p class="text-green-400 my-6 px-4 text-center">
+          Ton dessin est encore trop petit …
+        </p>
+      </div>
+    </div>
+    <div v-else-if="letterOptions && 0 === letterOptions.length">
+      <div class="w-full flex justify-center">
+        <p class="text-green-400 my-6 px-4 text-center">J'ai pas compris</p>
+      </div>
+    </div>
+    <div
+      v-else-if="letterOptions"
+      class="w-full h-auto flex flex-wrap justify-center my-2"
+    >
+      <div class="w-full flex justify-center">
+        <p class="text-green-400 my-6 px-4 text-center">
+          Quelle lettre est juste?
+        </p>
+      </div>
+
+      <button
+        v-for="(letter, index) of letterOptions"
+        :key="index"
+        class="bg-green-500 text-green-100 font-bold py-2 px-4 mx-1 my-4 text-xl rounded"
+        @click="saveToBucket(letter)"
+      >
+        {{ letter }}
+      </button>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ID } from "appwrite";
+import { computed, inject, ref } from "vue";
+import HandWritingCanvas from "./HandWritingCanvas.vue";
+
+const saving = ref(false);
+
+const props = defineProps({
+  size: { type: Number, required: true },
+  photo: { type: String, default: "" },
+  event: { type: Object, required: true },
+  deviceId: { type: String, required: true },
+});
+
+const emit = defineEmits(["reset", "refresh"]);
+
+const trace = ref([]);
+const traceRender = ref(null);
+
+const lineWidth = ref(10);
+const traceColor = ref("#000000");
+
+const letterOptions = ref(null);
+
+const tracesBucket = inject("traces-bucket");
+const capturesBucket = inject("captures-bucket");
+
+const mainDb = inject("main-db");
+const mainDbCapturesCol = inject("main-db-captures-col");
+
+const databases = inject("appwrite-databases");
+const storage = inject("appwrite-storage");
+
+const traceReady = computed(() => {
+  return traceNotEmpty.value && traceBigEnough;
+});
+
+const traceNotEmpty = computed(() => {
+  return 0 < trace.value.length;
+});
+
+const traceBigEnough = computed(() => {
+  const traceWidth = traceBox.value.maxX - traceBox.value.minX;
+  const traceHeight = traceBox.value.maxY - traceBox.value.minY;
+
+  return traceWidth > 120 || traceHeight > 120;
+});
+
+const traceBox = computed(() => {
+  const box = {
+    minX: null,
+    minY: null,
+    maxX: null,
+    maxY: null,
+  };
+
+  for (let i = 0; i < trace.value.length; i++) {
+    const [xStack, yStack] = trace.value[i];
+
+    if (xStack.length > 0 && yStack.length > 0) {
+      for (let j = 1; j < xStack.length; j++) {
+        const x = xStack[j];
+        if (null === box.minX || x < box.minX) box.minX = x;
+        if (null === box.maxX || x > box.maxX) box.maxX = x;
+
+        const y = yStack[j];
+        if (null === box.minY || y < box.minY) box.minY = y;
+        if (null === box.maxY || y > box.maxY) box.maxY = y;
+      }
+    }
+  }
+
+  return box;
+});
+
+const sizePx = computed(() => {
+  return `${props.size}px`;
+});
+
+const negativeSizePx = computed(() => {
+  return `-${props.size}px`;
+});
+
+const goBack = () => {
+  emit("reset");
+};
+
+const updateTrace = ({ trace: canvasTrace, render }) => {
+  trace.value = canvasTrace;
+  traceRender.value = render;
+};
+
+const erase = () => {
+  trace.value = [];
+  letterOptions.value = null;
+};
+
+const recognize = () => {
+  const options = {
+    upperCase: true,
+    // removeAccents: true,
+    singleLetter: true,
+  };
+
+  const data = JSON.stringify({
+    options: "enable_pre_space",
+    requests: [
+      {
+        writing_guide: {
+          writing_area_width: 480,
+          writing_area_height: 480,
+        },
+        ink: trace.value,
+        language: options.language || "fr_FR",
+      },
+    ],
+  });
+
+  const xhr = new XMLHttpRequest();
+  xhr.addEventListener("readystatechange", () => {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+
+        let results;
+        if (response.length === 1) {
+          console.warn(undefined, new Error(response[0]));
+        } else {
+          results = response[1][0][1];
+        }
+
+        if (options.numOfWords) {
+          results = results.filter(
+            (result) => result.length === options.numOfWords,
+          );
+        }
+
+        if (options.numOfReturn) {
+          results = results.slice(0, options.numOfReturn);
+        }
+
+        if (options.upperCase) {
+          results = results
+            .map((result) => result.toUpperCase())
+            .filter(function (item, pos, arr) {
+              return arr.indexOf(item) == pos;
+            });
+        }
+
+        if (options.removeAccents) {
+          results = results
+            .map((result) =>
+              result.normalize("NFD").replace(/[\u0300-\u036f]/g, ""),
+            )
+            .filter(function (item, pos, arr) {
+              return arr.indexOf(item) == pos;
+            });
+        }
+
+        if (options.singleLetter) {
+          results = results
+            .map((result) => result.substring(0, 1))
+            .filter(function (item, pos, arr) {
+              return arr.indexOf(item) == pos;
+            });
+        }
+
+        letterOptions.value = results;
+      } else if (xhr.status === 403) {
+        console.warn(undefined, new Error("access denied"));
+
+        letterOptions.value = [];
+      } else if (xhr.status === 503) {
+        console.warn(
+          undefined,
+          new Error("can't connect to recognition server"),
+        );
+
+        letterOptions.value = [];
+      }
+    }
+  });
+
+  xhr.open(
+    "POST",
+    "https://www.google.com.tw/inputtools/request?ime=handwriting&app=mobilesearch&cs=1&oe=UTF-8",
+  );
+  xhr.setRequestHeader("content-type", "application/json");
+  xhr.send(data);
+};
+
+const saveToBucket = async (letter) => {
+  saving.value = true;
+
+  // Save capture file.
+  const captureBase64 = await fetch(props.photo);
+  const captureBlob = await captureBase64.blob();
+  const captureFile = new File([captureBlob], "capture.png", {
+    type: "image/png",
+  });
+
+  const captureFileId = ID.unique();
+
+  const captureUpload = await storage.createFile(
+    capturesBucket,
+    captureFileId,
+    captureFile,
+  );
+
+  // Save trace file.
+  const traceBase64 = await fetch(traceRender.value);
+  const traceBlob = await traceBase64.blob();
+  const traceFile = new File([traceBlob], "trace.png", {
+    type: "image/png",
+  });
+
+  const traceFileId = ID.unique();
+
+  const traceUpload = await storage.createFile(
+    tracesBucket,
+    traceFileId,
+    traceFile,
+  );
+
+  // Save entry in database.
+  const documentId = ID.unique();
+
+  await databases
+    .createDocument(mainDb, mainDbCapturesCol, documentId, {
+      letter,
+      trace: traceUpload.$id,
+      capture: captureUpload.$id,
+      event: props.event.id,
+      device: props.deviceId,
+    })
+    .then(() => {
+      emit("refresh");
+    });
+
+  saving.value = false;
+};
+</script>
+
+<style scoped>
+.canvas-box {
+  height: v-bind("sizePx");
+}
+
+canvas {
+  top: v-bind("negativeSizePx");
+}
+</style>

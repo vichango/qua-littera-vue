@@ -1,25 +1,13 @@
 <template>
-  <div v-if="'nothing' === doing" class="bg-blue-200 md:h-screen">
-    <div class="placeholder p-4 my-0 mx-auto overflow-hidden bg-blue-400"></div>
-    <div class="w-full flex justify-center">
-      <button
-        class="border-2 border-blue-500 text-blue-500 font-bold py-2 px-4 m-6 rounded"
-        @click="doing = 'capture'"
-      >
-        Démarrer
-        <font-awesome-icon icon="fa-solid fa-play" class="ms-3" />
-      </button>
-    </div>
-
-    <div class="w-full flex justify-center">
-      <p class="text-blue-400 my-6 px-4 text-center">
-        Fais clic pour commencer
-      </p>
-    </div>
-  </div>
+  <CaptureStart
+    v-if="'nothing' === doing"
+    :size="size"
+    @proceed="startCapture"
+  />
   <ImageCapture v-else-if="'capture' === doing" @captured="customSave" />
-  <HandwritingCanvas
+  <HandWriting
     v-else-if="'drawing' === doing"
+    :size="size"
     :photo="capturedSrc"
     :event="props.event"
     :device-id="props.playerId"
@@ -28,8 +16,9 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from "vue";
-import HandwritingCanvas from "./HandwritingCanvas.vue";
+import { onMounted, onUnmounted, ref } from "vue";
+import CaptureStart from "./CaptureStart.vue";
+import HandWriting from "./HandWriting.vue";
 import ImageCapture from "./ImageCapture.vue";
 
 const props = defineProps({
@@ -41,9 +30,6 @@ const doing = ref("nothing");
 const capturedSrc = ref("");
 
 const size = ref(Math.min(480, window.innerWidth));
-const sizePx = computed(() => {
-  return `${size.value}px`;
-});
 
 onMounted(() => {
   window.addEventListener("resize", resizeCanvas);
@@ -57,6 +43,10 @@ const resizeCanvas = () => {
   size.value = Math.min(480, window.innerWidth);
 };
 
+const startCapture = () => {
+  doing.value = "capture";
+};
+
 const customSave = (src) => {
   capturedSrc.value = src;
   doing.value = "drawing";
@@ -68,9 +58,4 @@ const resetCapture = () => {
 };
 </script>
 
-<style scoped>
-.placeholder {
-  width: v-bind("sizePx");
-  height: v-bind("sizePx");
-}
-</style>
+<style scoped></style>
