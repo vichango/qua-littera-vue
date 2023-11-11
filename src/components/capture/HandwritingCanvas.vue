@@ -1,7 +1,7 @@
 <template>
   <canvas
     ref="canvas"
-    class="p-0 my-0 mx-auto cursor-crosshair relative rounded"
+    class="cursor-crosshair rounded"
     :width="size"
     :height="size"
   ></canvas>

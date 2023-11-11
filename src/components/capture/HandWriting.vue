@@ -31,22 +31,22 @@
       <div class="w-full max-w-[480px] flex">
         <div class="w-1/2 text-start">
           <button
-            class="border-2 border-green-500 text-green-500 font-bold py-2 ps-3 pe-4 rounded"
+            class="border-2 border-green-500 text-green-500 font-bold py-2 px-3 rounded hover:bg-green-100"
             :disabled="saving ? 'disabled' : false"
             @click="goBack"
           >
-            <font-awesome-icon
-              icon="fa-solid fa-chevron-left"
-              class="text-green-400 me-2"
-            />
             <font-awesome-icon icon="fa-solid fa-camera" />
+            <font-awesome-icon
+              icon="fa-solid fa-arrow-left"
+              class="text-green-400 ms-2"
+            />
           </button>
         </div>
 
         <div class="w-1/2 text-end">
           <button
-            class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 me-2 rounded"
-            :disabled="saving ? 'disabled' : false"
+            class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 me-2 rounded disabled:opacity-25 hover:bg-green-100 disabled:bg-green-200"
+            :disabled="!traceReady || saving"
             @click="erase"
           >
             <font-awesome-icon icon="fa-solid fa-trash" />
@@ -60,22 +60,13 @@
             <font-awesome-icon icon="fa-solid fa-floppy-disk" />
           </button>
           <button
-            v-else-if="!traceReady"
-            class="border-2 border-green-300 font-bold py-2 px-4 rounded text-green-300"
-            disabled
-          >
-            C'est prêt
-          </button>
-          <button
-            v-else
             :class="[
-              'border-2 border-green-500 font-bold py-2 px-4 rounded',
-              traceReady ? 'text-green-500' : 'bg-green-200 text-green-0',
+              'border-2 border-green-500 text-green-500 font-bold py-2 px-4 rounded disabled:opacity-25 hover:bg-green-100 disabled:bg-green-200',
             ]"
             :disabled="!traceReady"
             @click="recognize"
           >
-            C'est prêt
+            J'ai fini
           </button>
         </div>
       </div>
@@ -358,6 +349,7 @@ const saveToBucket = async (letter) => {
       device: props.deviceId,
     })
     .then(() => {
+      erase();
       emit("refresh");
     });
 

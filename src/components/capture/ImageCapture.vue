@@ -13,15 +13,32 @@
       <img ref="image" :style="{ display: capturing ? 'none' : 'block' }" />
     </div>
 
-    <div v-if="capturing" class="w-full flex justify-center">
-      <button
-        class="border-2 border-blue-500 text-blue-500 text-lg font-bold py-2 px-4 m-6 rounded disabled:opacity-25"
-        :disabled="!ready"
-        @click="capture"
-      >
-        Capturer
-        <font-awesome-icon icon="fa-solid fa-camera" class="ms-3" />
-      </button>
+    <div v-if="capturing" class="flex justify-center my-6">
+      <div class="w-full max-w-[480px] flex">
+        <div class="w-1/4 text-start">
+          <button
+            class="border-2 border-blue-500 text-blue-500 font-bold py-2 px-3 rounded hover:bg-blue-100"
+            @click="goBack"
+          >
+            <font-awesome-icon icon="fa-solid fa-power-off" />
+            <font-awesome-icon
+              icon="fa-solid fa-arrow-left"
+              class="text-blue-400 ms-2"
+            />
+          </button>
+        </div>
+
+        <div class="w-1/2 text-center">
+          <button
+            class="border-2 border-blue-500 text-blue-500 font-bold py-2 px-4 rounded hover:bg-blue-100 disabled:opacity-25 disabled:bg-blue-100"
+            :disabled="!ready"
+            @click="capture"
+          >
+            Capturer
+            <font-awesome-icon icon="fa-solid fa-camera" class="ms-3" />
+          </button>
+        </div>
+      </div>
     </div>
 
     <div v-if="capturing" class="w-full flex justify-center">
@@ -41,9 +58,11 @@ const video = ref(null);
 const canvas = ref(null);
 const image = ref("image");
 
+const ready = ref(false);
+
 const size = ref(Math.min(480, window.innerWidth));
 
-const emit = defineEmits(["captured"]);
+const emit = defineEmits(["captured", "stop"]);
 
 const sizePx = computed(() => {
   return `${size.value}px`;
@@ -62,7 +81,10 @@ const resizeCanvas = () => {
   size.value = Math.min(480, window.innerWidth);
 };
 
-const ready = ref(false);
+const goBack = () => {
+  stopStream();
+  emit("stop");
+};
 
 const stopStream = () => {
   const stream = video.value.srcObject;

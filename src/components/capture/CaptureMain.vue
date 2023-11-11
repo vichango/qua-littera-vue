@@ -4,7 +4,11 @@
     :size="size"
     @proceed="startCapture"
   />
-  <ImageCapture v-else-if="'capture' === doing" @captured="customSave" />
+  <ImageCapture
+    v-else-if="'capture' === doing"
+    @captured="customSave"
+    @stop="customStop"
+  />
   <HandWriting
     v-else-if="'drawing' === doing"
     :size="size"
@@ -45,6 +49,10 @@ const resizeCanvas = () => {
 
 const startCapture = () => {
   doing.value = "capture";
+};
+
+const customStop = () => {
+  doing.value = "nothing";
 };
 
 const customSave = (src) => {
