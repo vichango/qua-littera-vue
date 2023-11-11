@@ -45,7 +45,7 @@ const currentView = computed(() => {
 
 onMounted(() => {
   loadFromUrl();
-  provideAppWrtie();
+  provideAppWrite();
   loadFromStorage();
 
   provideMode();
@@ -83,10 +83,10 @@ const loadFromUrl = () => {
   }
 };
 
-const provideAppWrtie = () => {
+const provideAppWrite = () => {
   const client = new Client();
   client
-    .setEndpoint("https://cloud.appwrite.io/v1")
+    .setEndpoint(import.meta.env.VITE_APPWRITE_ENDPOINT)
     .setProject(import.meta.env.VITE_APPWRITE_PROJECT);
 
   databases.value = new Databases(client);

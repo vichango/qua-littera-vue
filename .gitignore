@@ -28,4 +28,5 @@ coverage
 *.sw?
 
 # Custom
-.env
+.env*
+!.env.dist
