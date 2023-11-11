@@ -1,26 +1,25 @@
 <template>
   <div class="bg-blue-200 md:h-screen py-6">
-    <div class="placeholder p-4 my-0 mx-auto overflow-hidden bg-blue-400"></div>
-    <div class="w-full flex justify-center">
-      <button
-        class="border-2 border-blue-500 text-blue-500 font-bold py-2 px-4 m-6 rounded"
+    <SizedContainer :size="props.size" color="blue" />
+
+    <div class="w-full flex justify-center my-6">
+      <AppButton
+        label="Démarrer"
+        color="blue"
+        fa-icon="fa-solid fa-play"
         @click="emit('proceed')"
-      >
-        Démarrer
-        <font-awesome-icon icon="fa-solid fa-play" class="ms-3" />
-      </button>
+      />
     </div>
 
-    <div class="w-full flex justify-center">
-      <p class="text-blue-400 my-6 px-4 text-center">
-        Fais clic pour commencer
-      </p>
-    </div>
+    <AppMessage message="Fais clic pour commencer" />
   </div>
 </template>
 
 <script setup>
 import { computed } from "vue";
+import AppButton from "../common/AppButton.vue";
+import AppMessage from "../common/AppMessage.vue";
+import SizedContainer from "../common/SizedContainer.vue";
 
 const emit = defineEmits(["proceed"]);
 
