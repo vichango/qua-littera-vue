@@ -6,6 +6,7 @@
   />
   <ImageCapture
     v-else-if="'capture' === doing"
+    :size="size"
     @captured="customSave"
     @stop="customStop"
   />

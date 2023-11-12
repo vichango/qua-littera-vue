@@ -16,7 +16,6 @@
 </template>
 
 <script setup>
-import { computed } from "vue";
 import AppButton from "../common/AppButton.vue";
 import AppMessage from "../common/AppMessage.vue";
 import SizedContainer from "../common/SizedContainer.vue";
@@ -26,15 +25,6 @@ const emit = defineEmits(["proceed"]);
 const props = defineProps({
   size: { type: Number, required: true },
 });
-
-const sizePx = computed(() => {
-  return `${props.size}px`;
-});
 </script>
 
-<style scoped>
-.placeholder {
-  width: v-bind("sizePx");
-  height: v-bind("sizePx");
-}
-</style>
+<style scoped></style>

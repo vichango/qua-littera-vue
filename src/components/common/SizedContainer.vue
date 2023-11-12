@@ -1,6 +1,10 @@
 <template>
   <div
-    :class="['sized', 'p-4 my-0 mx-auto overflow-hidden', `bg-${color}-400`]"
+    :class="[
+      'sized',
+      'p-4 my-0 mx-auto overflow-hidden rounded',
+      `bg-${color}-400`,
+    ]"
   >
     <slot></slot>
   </div>

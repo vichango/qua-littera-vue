@@ -1,21 +1,18 @@
 <template>
   <div class="bg-green-200 md:h-screen pt-6">
-    <div class="w-full canvas-box">
-      <img
-        ref="photo"
-        class="p-4 my-0 mx-auto bg-green-400 rounded"
-        :width="size"
-        :height="size"
-        :src="props.photo"
-      />
-      <HandWritingCanvas
-        :trace="trace"
-        :size="size"
-        :line-width="lineWidth"
-        :trace-color="traceColor"
-        @traced="updateTrace"
-      />
-    </div>
+    <SizedContainer :size="size" color="green">
+      <img ref="imageElt" :width="size" :height="size" :src="props.photo" />
+      <div class="canvas-delta relative">
+        <HandWritingCanvas
+          v-if="traceSize"
+          :trace="trace"
+          :size="traceSize"
+          :line-width="lineWidth"
+          :trace-color="traceColor"
+          @traced="updateTrace"
+        />
+      </div>
+    </SizedContainer>
 
     <div class="w-full mx-auto max-w-[480px] flex justify-center">
       <div class="h-8 w-16 bg-green-400 text-center rounded-b">
@@ -29,78 +26,43 @@
 
     <div class="flex justify-center">
       <div class="w-full max-w-[480px] flex">
-        <div class="w-1/2 text-start">
-          <button
-            class="border-2 border-green-500 text-green-500 font-bold py-2 px-3 rounded hover:bg-green-100"
+        <div class="w-5/12 flex justify-start">
+          <AppButton
+            :back-arrow="true"
+            fa-icon="fa-solid fa-camera"
             :disabled="saving ? 'disabled' : false"
+            color="green"
             @click="goBack"
-          >
-            <font-awesome-icon icon="fa-solid fa-camera" />
-            <font-awesome-icon
-              icon="fa-solid fa-arrow-left"
-              class="text-green-400 ms-2"
-            />
-          </button>
+          />
         </div>
 
-        <div class="w-1/2 text-end">
-          <button
-            class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 me-2 rounded disabled:opacity-25 hover:bg-green-100 disabled:bg-green-200"
-            :disabled="!traceReady || saving"
-            @click="erase"
-          >
-            <font-awesome-icon icon="fa-solid fa-trash" />
-          </button>
-
-          <button
+        <div class="w-1/6 flex justify-center">
+          <font-awesome-icon
             v-if="saving"
-            class="border-2 border-green-500 text-green-500 font-bold py-2 px-4 rounded"
-          >
-            Enreg.
-            <font-awesome-icon icon="fa-solid fa-floppy-disk" />
-          </button>
-          <button
-            :class="[
-              'border-2 border-green-500 text-green-500 font-bold py-2 px-4 rounded disabled:opacity-25 hover:bg-green-100 disabled:bg-green-200',
-            ]"
+            icon="fa-solid fa-floppy-disk"
+            class="animate-spin text-white my-auto"
+          />
+        </div>
+
+        <div class="w-5/12 flex space-x-2 justify-end">
+          <AppButton
+            fa-icon="fa-solid fa-trash"
+            :disabled="!traceReady || saving"
+            color="green"
+            @click="erase"
+          />
+
+          <AppButton
+            label="J'ai fini"
             :disabled="!traceReady"
+            color="green"
             @click="recognize"
-          >
-            J'ai fini
-          </button>
+          />
         </div>
       </div>
     </div>
 
-    <div v-if="!traceNotEmpty">
-      <div class="w-full flex justify-center">
-        <p class="text-green-400 my-6 px-4 text-center">
-          Dessine la lettre que tu as vu!
-        </p>
-      </div>
-    </div>
-    <div v-else-if="!traceBigEnough">
-      <div class="w-full flex justify-center">
-        <p class="text-green-400 my-6 px-4 text-center">
-          Ton dessin est encore trop petit …
-        </p>
-      </div>
-    </div>
-    <div v-else-if="letterOptions && 0 === letterOptions.length">
-      <div class="w-full flex justify-center">
-        <p class="text-green-400 my-6 px-4 text-center">J'ai pas compris</p>
-      </div>
-    </div>
-    <div
-      v-else-if="letterOptions"
-      class="w-full h-auto flex flex-wrap justify-center my-2"
-    >
-      <div class="w-full flex justify-center">
-        <p class="text-green-400 my-6 px-4 text-center">
-          Quelle lettre est juste?
-        </p>
-      </div>
-
+    <div class="w-full h-auto flex flex-wrap justify-center my-2">
       <button
         v-for="(letter, index) of letterOptions"
         :key="index"
@@ -110,12 +72,33 @@
         {{ letter }}
       </button>
     </div>
+
+    <AppMessage
+      v-if="!traceNotEmpty"
+      message="Vas-y, dessine-moi la lettre que tu as vu!"
+    />
+    <AppMessage
+      v-else-if="!traceBigEnough"
+      message="J'ai pas mes lunettes, c'est encore trop petit …"
+    />
+    <AppMessage
+      v-else-if="letterOptions && 0 === letterOptions.length"
+      message="J'ai pas compris"
+    />
+    <AppMessage
+      v-else-if="letterOptions"
+      message="Choisi une lettre pour l'enregistrer"
+    />
+    <AppMessage v-else-if="saving" message="Enregistrement" />
   </div>
 </template>
 
 <script setup>
 import { ID } from "appwrite";
-import { computed, inject, ref } from "vue";
+import { computed, inject, onMounted, ref, watch } from "vue";
+import AppButton from "../common/AppButton.vue";
+import AppMessage from "../common/AppMessage.vue";
+import SizedContainer from "../common/SizedContainer.vue";
 import HandWritingCanvas from "./HandWritingCanvas.vue";
 
 const saving = ref(false);
@@ -131,6 +114,9 @@ const emit = defineEmits(["reset", "refresh"]);
 
 const trace = ref([]);
 const traceRender = ref(null);
+
+const imageElt = ref(null);
+const traceSize = ref(null);
 
 const lineWidth = ref(10);
 const traceColor = ref("#000000");
@@ -192,9 +178,20 @@ const sizePx = computed(() => {
   return `${props.size}px`;
 });
 
-const negativeSizePx = computed(() => {
-  return `-${props.size}px`;
+const topNegativeDelta = computed(() => {
+  return `-${traceSize.value}px`;
 });
+
+onMounted(() => {
+  traceSize.value = imageElt.value.clientWidth;
+});
+
+watch(
+  () => props.size,
+  () => {
+    traceSize.value = imageElt.value.clientWidth;
+  },
+);
 
 const goBack = () => {
   emit("reset");
@@ -362,7 +359,7 @@ const saveToBucket = async (letter) => {
   height: v-bind("sizePx");
 }
 
-canvas {
-  top: v-bind("negativeSizePx");
+.canvas-delta {
+  top: v-bind("topNegativeDelta");
 }
 </style>

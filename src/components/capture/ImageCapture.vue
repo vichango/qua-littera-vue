@@ -8,49 +8,51 @@
       :height="sizePx"
     ></canvas>
 
-    <div class="video-container p-4 my-0 mx-auto overflow-hidden bg-blue-400">
+    <SizedContainer :size="props.size" color="blue">
       <video v-if="capturing" ref="video" autoplay playsinline></video>
       <img ref="image" :style="{ display: capturing ? 'none' : 'block' }" />
-    </div>
+    </SizedContainer>
 
     <div v-if="capturing" class="flex justify-center my-6">
       <div class="w-full max-w-[480px] flex">
         <div class="w-1/4 text-start">
-          <button
-            class="border-2 border-blue-500 text-blue-500 font-bold py-2 px-3 rounded hover:bg-blue-100"
+          <AppButton
+            back-arrow
+            fa-icon="fa-solid fa-power-off"
+            color="blue"
             @click="goBack"
-          >
-            <font-awesome-icon icon="fa-solid fa-power-off" />
-            <font-awesome-icon
-              icon="fa-solid fa-arrow-left"
-              class="text-blue-400 ms-2"
-            />
-          </button>
+          />
         </div>
 
         <div class="w-1/2 text-center">
-          <button
-            class="border-2 border-blue-500 text-blue-500 font-bold py-2 px-4 rounded hover:bg-blue-100 disabled:opacity-25 disabled:bg-blue-100"
-            :disabled="!ready"
+          <AppButton
+            label="Capturer"
+            fa-icon="fa-solid fa-camera"
+            color="blue"
             @click="capture"
-          >
-            Capturer
-            <font-awesome-icon icon="fa-solid fa-camera" class="ms-3" />
-          </button>
+          />
         </div>
       </div>
     </div>
 
-    <div v-if="capturing" class="w-full flex justify-center">
-      <p class="text-blue-400 my-6 px-4 text-center">
-        À toi! Saisis quelque chose qui a la forme d'une lettre!
-      </p>
-    </div>
+    <AppMessage
+      v-if="capturing"
+      message="À toi! Saisis quelque chose qui a la forme d'une lettre!"
+    />
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
+import AppButton from "../common/AppButton.vue";
+import AppMessage from "../common/AppMessage.vue";
+import SizedContainer from "../common/SizedContainer.vue";
+
+const emit = defineEmits(["captured", "stop"]);
+
+const props = defineProps({
+  size: { type: Number, required: true },
+});
 
 const capturing = ref(true);
 
@@ -60,26 +62,13 @@ const image = ref("image");
 
 const ready = ref(false);
 
-const size = ref(Math.min(480, window.innerWidth));
-
-const emit = defineEmits(["captured", "stop"]);
-
 const sizePx = computed(() => {
-  return `${size.value}px`;
+  return `${props.size}px`;
 });
 
 onMounted(() => {
   initialise();
-  window.addEventListener("resize", resizeCanvas);
 });
-
-onUnmounted(() => {
-  window.removeEventListener("resize", resizeCanvas);
-});
-
-const resizeCanvas = () => {
-  size.value = Math.min(480, window.innerWidth);
-};
 
 const goBack = () => {
   stopStream();
@@ -106,8 +95,8 @@ const startStream = () => {
       video.value.play();
 
       video.value.addEventListener("canplay", () => {
-        canvas.value.width = size.value;
-        canvas.value.height = size.value;
+        canvas.value.width = props.size;
+        canvas.value.height = props.size;
 
         ready.value = true;
       });
@@ -118,15 +107,15 @@ const capture = () => {
   const context = canvas.value.getContext("2d");
 
   const scale =
-    size.value / Math.min(video.value.videoHeight, video.value.videoWidth);
+    props.size / Math.min(video.value.videoHeight, video.value.videoWidth);
 
   const xOffset =
     video.value.videoHeight > video.value.videoWidth
       ? 0
-      : (size.value - scale * video.value.videoWidth) / 2;
+      : (props.size - scale * video.value.videoWidth) / 2;
   const yOffset =
     video.value.videoHeight > video.value.videoWidth
-      ? (size.value - scale * video.value.videoHeight) / 2
+      ? (props.size - scale * video.value.videoHeight) / 2
       : 0;
 
   context.drawImage(
@@ -134,11 +123,11 @@ const capture = () => {
     xOffset,
     yOffset,
     video.value.videoHeight > video.value.videoWidth
-      ? size.value
+      ? props.size
       : scale * video.value.videoWidth,
     video.value.videoHeight > video.value.videoWidth
       ? scale * video.value.videoHeight
-      : size.value,
+      : props.size,
   );
 
   capturing.value = false;
