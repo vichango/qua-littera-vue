@@ -1,20 +1,15 @@
 const colors = ['blue', 'green']
-const whitelist = []
+const safelist = []
 colors.map((x) => {
-  whitelist.push(`border-${x}-500`)
-  whitelist.push(`text-${x}-500`)
-  whitelist.push(`bg-${x}-200`)
-  whitelist.push(`bg-${x}-300`)
-  whitelist.push(`bg-${x}-400`)
+  safelist.push(`border-${x}-500`)
+  safelist.push(`text-${x}-500`)
+  safelist.push(`bg-${x}-200`)
+  safelist.push(`bg-${x}-300`)
+  safelist.push(`bg-${x}-400`)
 })
 
 module.exports = {
-  purge: {
-    content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
-    options: {
-      whitelist,
-    },
-  },
+  purge: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   darkMode: false,
   theme: {
     extend: {},
@@ -23,4 +18,5 @@ module.exports = {
     extend: {},
   },
   plugins: [],
+  safelist
 }
