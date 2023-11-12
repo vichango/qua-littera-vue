@@ -83,7 +83,7 @@ const fetchYourLetters = () => {
         yourLetters.value = response.documents.map(
           ({ $id, letter, device, trace, traceBox, capture }) => {
             const [minX, maxX, minY, maxY] =
-              0 === traceBox.length ? [0, 0, 1, 1] : traceBox;
+              0 < traceBox.length ? traceBox : [0, 1, 0, 1];
 
             return {
               id: $id,
@@ -119,7 +119,7 @@ const fetchAllLetters = () => {
         allLetters.value = response.documents.map(
           ({ $id, letter, device, trace, traceBox, capture }) => {
             const [minX, maxX, minY, maxY] =
-              0 === traceBox.length ? [0, 0, 1, 1] : traceBox;
+              0 < traceBox.length ? traceBox : [0, 1, 0, 1];
 
             return {
               id: $id,
