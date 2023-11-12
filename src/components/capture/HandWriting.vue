@@ -99,7 +99,7 @@ import { computed, inject, onMounted, ref, watch } from "vue";
 import AppButton from "../common/AppButton.vue";
 import AppMessage from "../common/AppMessage.vue";
 import SizedContainer from "../common/SizedContainer.vue";
-import HandWritingCanvas from "./HandWritingCanvas.vue";
+import HandWritingCanvas from "./RenameHandWritingCanvas.vue";
 
 const saving = ref(false);
 
