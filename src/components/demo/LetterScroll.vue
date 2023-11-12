@@ -12,6 +12,7 @@
       :size="256"
       :class="index === i ? '' : 'hidden'"
       :letter="props.letter"
+      :show-trace="props.showTrace"
       :capture="capture"
       @click="toggle"
     />
@@ -27,6 +28,7 @@ const index = ref(0);
 const props = defineProps({
   size: { type: Number, default: 256 },
   letter: { type: String, required: true },
+  showTrace: { type: Boolean, default: true },
   captures: { type: Array, default: () => [] },
 });
 

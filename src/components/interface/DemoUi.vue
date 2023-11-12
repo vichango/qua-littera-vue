@@ -1,12 +1,26 @@
 <template>
-  <div class="w-screen h-screen bg-gray-100 flex justify-center">
-    <div v-if="!loading && captures" class="bg-gray-200 flex flex-wrap m-auto">
-      <WordScroll
-        v-for="(word, index) of targetWords"
-        :key="index"
-        :word="word"
-        :captures="captures"
-      />
+  <div class="w-screen h-screen bg-gray-100">
+    <div class="text-end">
+      <button
+        class="bg-gray-200 text-gray-300 py-2 px-4 mx-1 my-4 rounded"
+        @click="toggleTrace"
+      >
+        <font-awesome-icon icon="fa-solid fa-mask" />
+      </button>
+    </div>
+    <div class="w-full h-full bg-gray-100 flex flex-col justify-center">
+      <div
+        v-if="!loading && captures"
+        class="bg-gray-200 flex flex-wrap m-auto"
+      >
+        <WordScroll
+          v-for="(word, index) of targetWords"
+          :key="index"
+          :word="word"
+          :show-trace="trace"
+          :captures="captures"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -27,6 +41,7 @@ const mainDbCapturesCol = inject("main-db-captures-col");
 const captures = ref();
 
 const loading = ref(false);
+const trace = ref(true);
 
 const targetWords = computed(() => {
   return (
@@ -41,6 +56,10 @@ const targetWords = computed(() => {
 onMounted(() => {
   fetchLetters();
 });
+
+const toggleTrace = () => {
+  trace.value = !trace.value;
+};
 
 const fetchLetters = () => {
   loading.value = true;

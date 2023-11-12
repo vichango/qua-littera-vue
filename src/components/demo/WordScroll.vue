@@ -4,6 +4,7 @@
       v-for="(letter, index) of wordLetters"
       :key="index"
       :letter="letter"
+      :show-trace="props.showTrace"
       :captures="letter in props.captures ? props.captures[letter] : []"
     />
   </div>
@@ -15,6 +16,7 @@ import LetterScroll from "./LetterScroll.vue";
 
 const props = defineProps({
   word: { type: String, required: true },
+  showTrace: { type: Boolean, default: true },
   captures: { type: Object, default: () => {} },
 });
 

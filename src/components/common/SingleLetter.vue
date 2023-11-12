@@ -14,7 +14,7 @@
       <font-awesome-icon icon="fa-solid fa-minimize" />
     </div>
 
-    <div class="trace">
+    <div v-if="showTrace" class="trace">
       <ReframedImage
         v-if="traceUrl"
         :src="traceUrl"
@@ -39,6 +39,7 @@ import ReframedImage from "./ReframedImage.vue";
 const props = defineProps({
   size: { type: Number, default: 128 },
   previewSize: { type: Number, default: null },
+  showTrace: { type: Boolean, default: true },
   capture: { type: Object, required: true },
   playerId: { type: String, default: null },
 });

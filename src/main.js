@@ -9,6 +9,7 @@ import {
   faCamera,
   faArrowLeft,
   faFloppyDisk,
+  faMask,
   faMinimize,
   faPaintbrush,
   faPlay,
@@ -18,6 +19,7 @@ import {
 library.add(faCamera);
 library.add(faArrowLeft);
 library.add(faFloppyDisk);
+library.add(faMask);
 library.add(faMinimize);
 library.add(faPaintbrush);
 library.add(faPlay);
