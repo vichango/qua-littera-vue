@@ -9,6 +9,7 @@
     <SingleLetter
       v-for="(capture, i) of props.captures"
       :key="i"
+      :size="256"
       :class="index === i ? '' : 'hidden'"
       :letter="props.letter"
       :capture="capture"
@@ -18,14 +19,19 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import SingleLetter from "../common/SingleLetter.vue";
 
 const index = ref(0);
 
 const props = defineProps({
+  size: { type: Number, default: 256 },
   letter: { type: String, required: true },
   captures: { type: Array, default: () => [] },
+});
+
+const sizePixels = computed(() => {
+  return `${props.size}px`;
 });
 
 const toggle = () => {
@@ -39,7 +45,7 @@ onMounted(() => {
 
 <style scoped>
 .no-capture {
-  width: 128px;
-  height: 128px;
+  width: v-bind(sizePixels);
+  height: v-bind(sizePixels);
 }
 </style>

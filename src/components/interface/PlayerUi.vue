@@ -81,11 +81,24 @@ const fetchYourLetters = () => {
     .then(
       function (response) {
         yourLetters.value = response.documents.map(
-          ({ $id, letter, device, trace, capture }) => ({
+          ({
+            $id,
+            letter,
+            device,
+            trace,
+            traceBox: [minX, maxX, minY, maxY],
+            capture,
+          }) => ({
             id: $id,
             letter,
             player: device,
             trace,
+            traceBox: {
+              minX,
+              maxX,
+              minY,
+              maxY,
+            },
             capture,
           }),
         );
@@ -106,11 +119,24 @@ const fetchAllLetters = () => {
     .then(
       function (response) {
         allLetters.value = response.documents.map(
-          ({ $id, letter, device, trace, capture }) => ({
+          ({
+            $id,
+            letter,
+            device,
+            trace,
+            traceBox: [minX, maxX, minY, maxY],
+            capture,
+          }) => ({
             id: $id,
             letter,
             player: device,
             trace,
+            traceBox: {
+              minX,
+              maxX,
+              minY,
+              maxY,
+            },
             capture,
           }),
         );

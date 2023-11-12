@@ -4,6 +4,8 @@
       v-for="(capture, index) of props.captures"
       :key="`sl-${index}`"
       :capture="capture"
+      :size="128"
+      :preview-size="256"
       :player-id="props.playerId"
       @click="toggle"
       @refresh="relayRefresh"

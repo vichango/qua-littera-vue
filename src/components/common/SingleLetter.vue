@@ -1,6 +1,11 @@
 <template>
   <div class="letter-container">
-    <img :src="captureUrl" :width="size" :height="size" class="rounded" />
+    <ReframedImage
+      v-if="captureUrl"
+      :src="captureUrl"
+      :size="props.size"
+      :trace-box="props.capture.traceBox"
+    />
     <div
       v-if="playerId"
       data-v-f9a97fe0=""
@@ -8,27 +13,32 @@
     >
       <font-awesome-icon icon="fa-solid fa-minimize" />
     </div>
-    <img
-      :src="traceUrl"
-      :width="size"
-      :height="size"
-      class="relative rounded trace"
-    />
-    <button
-      v-if="isGod || props.playerId === props.capture.player"
-      class="remove action relative inline-flex items-center justify-center text-violet-600 bg-violet-300 rounded-full"
-      @click.stop="deleteCapture"
-    >
-      <font-awesome-icon icon="fa-solid fa-trash" />
-    </button>
+
+    <div class="trace">
+      <ReframedImage
+        v-if="traceUrl"
+        :src="traceUrl"
+        :size="props.size"
+        :trace-box="props.capture.traceBox"
+      />
+      <button
+        v-if="isGod || props.playerId === props.capture.player"
+        class="remove action relative inline-flex items-center justify-center text-violet-600 bg-violet-300 rounded-full"
+        @click.stop="deleteCapture"
+      >
+        <font-awesome-icon icon="fa-solid fa-trash" />
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { computed, inject, onMounted, ref } from "vue";
+import ReframedImage from "./ReframedImage.vue";
 
 const props = defineProps({
   size: { type: Number, default: 128 },
+  previewSize: { type: Number, default: null },
   capture: { type: Object, required: true },
   playerId: { type: String, default: null },
 });
@@ -64,7 +74,7 @@ const sizeNegPixels = computed(() => {
 });
 
 const removeActionTop = computed(() => {
-  return `-${props.size + (props.playerId ? 2 : 1) * actionSize}px`;
+  return `-${actionSize}px`;
 });
 
 const removeActionLeft = computed(() => {
@@ -72,19 +82,25 @@ const removeActionLeft = computed(() => {
 });
 
 onMounted(() => {
-  traceUrl.value = storage.getFilePreview(
-    tracesBucket,
-    props.capture.trace,
-    props.size,
-    props.size,
-  ).href;
+  traceUrl.value =
+    null !== props.previewSize
+      ? storage.getFilePreview(
+          tracesBucket,
+          props.capture.trace,
+          props.previewSize,
+          props.previewSize,
+        ).href
+      : storage.getFileView(tracesBucket, props.capture.trace).href;
 
-  captureUrl.value = storage.getFilePreview(
-    capturesBucket,
-    props.capture.capture,
-    props.size,
-    props.size,
-  ).href;
+  captureUrl.value =
+    null !== props.previewSize
+      ? storage.getFilePreview(
+          capturesBucket,
+          props.capture.capture,
+          props.size,
+          props.size,
+        ).href
+      : storage.getFileView(capturesBucket, props.capture.capture).href;
 });
 
 const deleteCapture = async () => {
@@ -100,6 +116,7 @@ const deleteCapture = async () => {
 
 <style scoped>
 .trace {
+  position: relative;
   top: v-bind(traceTop);
 }
 

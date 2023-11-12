@@ -344,6 +344,12 @@ const saveToBucket = async (letter) => {
       capture: captureUpload.$id,
       event: props.event.id,
       device: props.deviceId,
+      traceBox: [
+        traceBox.value.minX / traceSize.value,
+        traceBox.value.maxX / traceSize.value,
+        traceBox.value.minY / traceSize.value,
+        traceBox.value.maxY / traceSize.value,
+      ],
     })
     .then(() => {
       erase();
