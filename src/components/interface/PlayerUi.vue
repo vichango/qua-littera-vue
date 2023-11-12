@@ -81,26 +81,24 @@ const fetchYourLetters = () => {
     .then(
       function (response) {
         yourLetters.value = response.documents.map(
-          ({
-            $id,
-            letter,
-            device,
-            trace,
-            traceBox: [minX, maxX, minY, maxY],
-            capture,
-          }) => ({
-            id: $id,
-            letter,
-            player: device,
-            trace,
-            traceBox: {
-              minX,
-              maxX,
-              minY,
-              maxY,
-            },
-            capture,
-          }),
+          ({ $id, letter, device, trace, traceBox, capture }) => {
+            const [minX, maxX, minY, maxY] =
+              0 === traceBox.length ? [0, 0, 1, 1] : traceBox;
+
+            return {
+              id: $id,
+              letter,
+              player: device,
+              trace,
+              traceBox: {
+                minX,
+                maxX,
+                minY,
+                maxY,
+              },
+              capture,
+            };
+          },
         );
       },
       function (error) {
@@ -119,26 +117,24 @@ const fetchAllLetters = () => {
     .then(
       function (response) {
         allLetters.value = response.documents.map(
-          ({
-            $id,
-            letter,
-            device,
-            trace,
-            traceBox: [minX, maxX, minY, maxY],
-            capture,
-          }) => ({
-            id: $id,
-            letter,
-            player: device,
-            trace,
-            traceBox: {
-              minX,
-              maxX,
-              minY,
-              maxY,
-            },
-            capture,
-          }),
+          ({ $id, letter, device, trace, traceBox, capture }) => {
+            const [minX, maxX, minY, maxY] =
+              0 === traceBox.length ? [0, 0, 1, 1] : traceBox;
+
+            return {
+              id: $id,
+              letter,
+              player: device,
+              trace,
+              traceBox: {
+                minX,
+                maxX,
+                minY,
+                maxY,
+              },
+              capture,
+            };
+          },
         );
       },
       function (error) {

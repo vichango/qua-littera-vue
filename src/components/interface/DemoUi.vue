@@ -54,16 +54,10 @@ const fetchLetters = () => {
     .then(
       function (response) {
         captures.value = response.documents.reduce(
-          (
-            acc,
-            {
-              letter,
-              device,
-              trace,
-              traceBox: [minX, maxX, minY, maxY],
-              capture,
-            },
-          ) => {
+          (acc, { letter, device, trace, traceBox, capture }) => {
+            const [minX, maxX, minY, maxY] =
+              0 === traceBox.length ? [0, 0, 1, 1] : traceBox;
+
             return {
               ...acc,
               [letter]: [
