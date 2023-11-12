@@ -9,8 +9,8 @@
         />
       </div>
       <div class="flex w-full md:basis-1/2">
-        <div class="w-full flex flex-col lg:flex-row">
-          <div class="lg:basis-1/2">
+        <div class="w-full flex flex-col">
+          <div>
             <h1 class="text-2xl align-center text-violet-600 p-2 pb-4">
               Tes captures
             </h1>
@@ -23,7 +23,7 @@
               @refresh="doRefresh"
             />
           </div>
-          <div class="lg:basis-1/2">
+          <div v-if="isGod">
             <h1 class="text-2xl align-center text-violet-600 p-2 pb-4">
               Toutes les captures
             </h1>
@@ -58,6 +58,8 @@ const allLetters = ref();
 
 const mainDb = inject("main-db");
 const mainDbCapturesCol = inject("main-db-captures-col");
+
+const isGod = "godmode" === inject("mode");
 
 onMounted(() => {
   doRefresh();

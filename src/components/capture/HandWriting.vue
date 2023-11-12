@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-green-200 md:h-screen pt-6">
+  <div class="bg-green-200 md:h-screen py-6">
     <SizedContainer :size="size" color="green">
       <img ref="imageElt" :width="size" :height="size" :src="props.photo" />
       <div class="canvas-delta relative">
@@ -20,11 +20,18 @@
           icon="fa-solid fa-paintbrush"
           class="align-middle me-2 text-green-200"
         />
-        <color-picker v-model:pureColor="traceColor" />
+        <color-picker
+          v-model:pureColor="traceColor"
+          shape="circle"
+          :disable-history="true"
+          :disable-alpha="true"
+          lang="fr_CH"
+          @update:pure-color="() => console.log('APATE')"
+        />
       </div>
     </div>
 
-    <div class="flex justify-center">
+    <div class="flex justify-center my-2 px-2">
       <div class="w-full max-w-[480px] flex">
         <div class="w-5/12 flex justify-start">
           <AppButton
@@ -54,7 +61,7 @@
 
           <AppButton
             label="J'ai fini"
-            :disabled="!traceReady"
+            :disabled="!traceReady || !traceBigEnough"
             color="green"
             @click="recognize"
           />
@@ -75,19 +82,23 @@
 
     <AppMessage
       v-if="!traceNotEmpty"
+      color="green"
       message="Vas-y, dessine-moi la lettre que tu as vu!"
     />
     <AppMessage
       v-else-if="!traceBigEnough"
+      color="green"
       message="J'ai pas mes lunettes, c'est encore trop petit …"
     />
     <AppMessage
       v-else-if="letterOptions && 0 === letterOptions.length"
+      color="green"
       message="J'ai pas compris"
     />
     <AppMessage
       v-else-if="letterOptions"
-      message="Choisi une lettre pour l'enregistrer"
+      color="green"
+      message="Si j'ai trouvé ta lettre, clique dessus pour l'enregistrer"
     />
     <AppMessage v-else-if="saving" message="Enregistrement" />
   </div>
@@ -144,7 +155,7 @@ const traceBigEnough = computed(() => {
   const traceWidth = traceBox.value.maxX - traceBox.value.minX;
   const traceHeight = traceBox.value.maxY - traceBox.value.minY;
 
-  return traceWidth > 120 || traceHeight > 120;
+  return traceWidth > 240 || traceHeight > 240;
 });
 
 const traceBox = computed(() => {
@@ -223,7 +234,7 @@ const recognize = () => {
           writing_area_height: 480,
         },
         ink: trace.value,
-        language: options.language || "fr_FR",
+        language: options.language || "fr_CH",
       },
     ],
   });

@@ -3,6 +3,9 @@ const safelist = []
 colors.map((x) => {
   safelist.push(`border-${x}-500`)
   safelist.push(`text-${x}-500`)
+  safelist.push(`text-${x}-400`)
+  safelist.push(`disabled:bg-${x}-200`)
+  safelist.push(`hover:bg-${x}-300`)
   safelist.push(`bg-${x}-200`)
   safelist.push(`bg-${x}-300`)
   safelist.push(`bg-${x}-400`)

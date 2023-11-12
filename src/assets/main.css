@@ -2,11 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-.vc-color-wrap {
-    border-radius: 50%;
+.vc-color-wrap.round {
     width: 1.25em !important;
     height: 1.25em !important;
     margin: 0 !important;
-    box-shadow: none;
-    vertical-align: text-bottom;
+    border: 2px solid rgb(187 247 208) !important;
+    box-shadow: none !important;
 }

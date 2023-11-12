@@ -11,7 +11,7 @@
       />
     </div>
 
-    <AppMessage message="Fais clic pour commencer" />
+    <AppMessage message="Fais clic pour commencer" color="blue" />
   </div>
 </template>
 

@@ -13,7 +13,7 @@
       <img ref="image" :style="{ display: capturing ? 'none' : 'block' }" />
     </SizedContainer>
 
-    <div v-if="capturing" class="flex justify-center my-6">
+    <div v-if="capturing" class="flex justify-center my-6 px-2">
       <div class="w-full max-w-[480px] flex">
         <div class="w-1/4 text-start">
           <AppButton
@@ -29,6 +29,7 @@
             label="Capturer"
             fa-icon="fa-solid fa-camera"
             color="blue"
+            :disabled="!ready"
             @click="capture"
           />
         </div>
@@ -37,6 +38,7 @@
 
     <AppMessage
       v-if="capturing"
+      color="blue"
       message="À toi! Saisis quelque chose qui a la forme d'une lettre!"
     />
   </div>
