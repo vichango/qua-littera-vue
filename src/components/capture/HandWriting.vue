@@ -83,7 +83,7 @@
     <AppMessage
       v-if="!traceNotEmpty"
       color="green"
-      message="Vas-y, dessine-moi la lettre que tu as vu!"
+      message="Vas-y, dessine la lettre que tu as vu!"
     />
     <AppMessage
       v-else-if="!traceBigEnough"
@@ -98,7 +98,7 @@
     <AppMessage
       v-else-if="letterOptions"
       color="green"
-      message="Si j'ai trouvé ta lettre, clique dessus pour l'enregistrer"
+      message="Clique sur ta lettre pour l'enregistrer"
     />
     <AppMessage v-else-if="saving" message="Enregistrement" />
   </div>
@@ -155,7 +155,9 @@ const traceBigEnough = computed(() => {
   const traceWidth = traceBox.value.maxX - traceBox.value.minX;
   const traceHeight = traceBox.value.maxY - traceBox.value.minY;
 
-  return traceWidth > 240 || traceHeight > 240;
+  const factoredSize = props.size / 3;
+
+  return traceWidth > factoredSize || traceHeight > factoredSize;
 });
 
 const traceBox = computed(() => {
