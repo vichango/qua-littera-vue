@@ -9,8 +9,8 @@
         />
       </div>
       <div class="flex w-full md:basis-1/2">
-        <div class="w-full flex flex-col">
-          <div>
+        <div class="flex flex-col w-full">
+          <div class="bg-violet-100 md:h-screen p-6">
             <h1 class="text-2xl align-center text-violet-600 p-2 pb-4">
               Tes captures
             </h1>

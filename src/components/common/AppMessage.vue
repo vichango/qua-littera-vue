@@ -1,6 +1,11 @@
 <template>
-  <div class="w-full flex justify-center">
-    <p :class="['text-bold px-4 text-center', `text-${color}-400`]">
+  <div class="w-full flex justify-center px-4">
+    <p
+      :class="[
+        'light-background text-bold px-2 text-center rounded',
+        `text-${color}-400`,
+      ]"
+    >
       {{ props.message }}
     </p>
   </div>
@@ -13,4 +18,8 @@ const props = defineProps({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.light-background {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+</style>
