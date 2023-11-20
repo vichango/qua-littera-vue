@@ -17,7 +17,7 @@ const props = defineProps({
   src: { type: String, required: true },
   size: { type: Number, required: true },
   traceBox: { type: Object, required: true },
-  padding: { type: Number, default: 0.05 },
+  padding: { type: Number, default: 0.1 },
 });
 
 const paddedTraceBox = computed(() => {
