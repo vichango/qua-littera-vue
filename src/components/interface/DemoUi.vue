@@ -7,12 +7,15 @@
       >
         <font-awesome-icon icon="fa-solid fa-mask" />
       </button>
+      <button
+        class="bg-gray-200 text-gray-300 py-2 px-4 mx-1 my-4 rounded"
+        @click="fetchLetters"
+      >
+        <font-awesome-icon icon="fa-solid fa-rotate" />
+      </button>
     </div>
     <div class="w-full h-full bg-gray-100 flex flex-col justify-center">
-      <div
-        v-if="!loading && captures"
-        class="bg-gray-200 flex flex-wrap m-auto"
-      >
+      <div v-if="captures" class="bg-gray-200 flex flex-wrap m-auto">
         <WordScroll
           v-for="(word, index) of targetWords"
           :key="index"
@@ -42,9 +45,8 @@ const databases = inject("appwrite-databases");
 
 const maxCreatedAt = ref(null);
 const allCaptures = ref({});
-const captures = ref();
+const captures = ref({});
 
-const loading = ref(false);
 const trace = ref(true);
 
 const targetWords = computed(() => {
@@ -57,32 +59,37 @@ const targetWords = computed(() => {
   );
 });
 
+const targetLetters = computed(() => {
+  return targetWords.value.reduce((acc, word) => {
+    return [...acc, ...word.split("")];
+  }, []);
+});
+
 onMounted(() => {
+  captures.value = targetLetters.value.reduce((acc, letter) => {
+    if (!(letter in acc)) {
+      acc[letter] = {};
+    }
+
+    return acc;
+  }, {});
+
   fetchLetters();
   // setInterval(() => {
   //   console.log("Re-fetching.");
   //   fetchLetters();
-  // }, 30000);
+  // }, 5000);
 });
 
 watch(
   () => Object.keys(allCaptures.value).length,
   () => {
-    captures.value = Object.values(allCaptures).reduce(
-      (acc, { letter, ...rest }) => {
-        return {
-          ...acc,
-          [letter]: [
-            ...(acc[letter] || []),
-            {
-              letter,
-              ...rest,
-            },
-          ],
-        };
-      },
-      {},
-    );
+    // Update letters.
+    Object.entries(allCaptures.value).forEach(([id, { letter, ...rest }]) => {
+      if (letter in captures.value && !(id in captures.value[letter])) {
+        captures.value[letter][id] = { letter, ...rest };
+      }
+    });
   },
 );
 
@@ -91,11 +98,10 @@ const toggleTrace = () => {
 };
 
 const fetchLetters = () => {
-  loading.value = true;
-
   const queries = [
     Query.equal("event", props.event.id),
     Query.orderAsc("$createdAt"),
+    // Query.limit(2),
   ];
 
   if (maxCreatedAt.value) {
@@ -104,49 +110,45 @@ const fetchLetters = () => {
     );
   }
 
-  return databases
-    .listDocuments(mainDb, mainDbCapturesCol, queries)
-    .then(
-      function (response) {
-        response.documents.forEach((entry) => {
-          const {
-            $id: id,
+  return databases.listDocuments(mainDb, mainDbCapturesCol, queries).then(
+    function (response) {
+      response.documents.forEach((entry) => {
+        const {
+          $id: id,
+          letter,
+          device,
+          trace,
+          traceBox,
+          capture,
+          $createdAt: createdAt,
+        } = entry;
+
+        // Update captures.
+        if (!(id in allCaptures.value)) {
+          const [minX, maxX, minY, maxY] =
+            0 < traceBox.length ? traceBox : [0, 1, 0, 1];
+
+          allCaptures.value[id] = {
+            id,
             letter,
-            device,
+            player: device,
             trace,
-            traceBox,
+            traceBox: { minX, maxX, minY, maxY },
             capture,
-            $createdAt: createdAt,
-          } = entry;
+          };
+        }
 
-          // Update captures.
-          if (!(id in allCaptures.value)) {
-            const [minX, maxX, minY, maxY] =
-              0 < traceBox.length ? traceBox : [0, 1, 0, 1];
-
-            allCaptures.value[id] = {
-              letter,
-              player: device,
-              trace,
-              traceBox: { minX, maxX, minY, maxY },
-              capture,
-            };
-          }
-
-          // Update max created at date.
-          const createdAtDate = new Date(createdAt);
-          if (!maxCreatedAt.value || maxCreatedAt.value <= createdAtDate) {
-            maxCreatedAt.value = createdAtDate;
-          }
-        });
-      },
-      function (error) {
-        console.log(error);
-      },
-    )
-    .finally(() => {
-      loading.value = false;
-    });
+        // Update max created at date.
+        const createdAtDate = new Date(createdAt);
+        if (!maxCreatedAt.value || maxCreatedAt.value <= createdAtDate) {
+          maxCreatedAt.value = createdAtDate;
+        }
+      });
+    },
+    function (error) {
+      console.log(error);
+    },
+  );
 };
 </script>
 

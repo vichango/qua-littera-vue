@@ -14,6 +14,7 @@ import {
   faPaintbrush,
   faPlay,
   faPowerOff,
+  faRotate,
   faTrash,
 } from '@fortawesome/free-solid-svg-icons';
 library.add(faCamera);
@@ -24,6 +25,7 @@ library.add(faMinimize);
 library.add(faPaintbrush);
 library.add(faPlay);
 library.add(faPowerOff);
+library.add(faRotate);
 library.add(faTrash);
 
 import Vue3ColorPicker from "vue3-colorpicker";

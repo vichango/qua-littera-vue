@@ -1,47 +1,81 @@
 <template>
   <div
-    v-if="props.captures.length < 1"
+    v-if="null === showing"
     class="no-capture me-[12px] rounded border-dashed border-2 border-gray-300 text-gray-300 text-2xl inline-flex justify-center items-center"
   >
     {{ props.letter }}
   </div>
-  <div v-else class="me-[12px]">
+  <div
+    v-else
+    class="no-capture me-[12px] rounded border-dashed border-2 border-gray-300 text-gray-300 text-2xl inline-flex justify-center items-center"
+  >
     <SingleLetter
-      v-for="(capture, i) of props.captures"
-      :key="i"
+      :key="showing"
       :size="256"
-      :class="index === i ? '' : 'hidden'"
       :letter="props.letter"
       :show-trace="props.showTrace"
-      :capture="capture"
+      :capture="props.captures[showing]"
       @click="toggle"
     />
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import SingleLetter from "../common/SingleLetter.vue";
-
-const index = ref(0);
 
 const props = defineProps({
   size: { type: Number, default: 256 },
   letter: { type: String, required: true },
   showTrace: { type: Boolean, default: true },
-  captures: { type: Array, default: () => [] },
+  captures: { type: Object, default: () => {} },
+  // scrollRequest: { type: Date, required: true },
 });
 
 const sizePixels = computed(() => {
   return `${props.size}px`;
 });
 
+const showing = ref(null);
+// const lastScrollRequest = ref(null);
+
+watch(
+  () => Object.keys(props.captures).length,
+  () => {
+    if (null === showing.value) {
+      toggle();
+    }
+  },
+);
+
+// watch(
+//   () => props.scrollRequest,
+//   (newValue) => {
+//     if (newValue > lastScrollRequest.value) {
+//       toggle();
+//       lastScrollRequest.value = newValue;
+//     }
+//   },
+// );
+
 const toggle = () => {
-  index.value = (index.value + 1) % props.captures.length;
+  const captureIds = Object.keys(props.captures);
+
+  if (captureIds.length > 0) {
+    if (null === showing.value) {
+      showing.value = captureIds[0];
+      console.log("Initial capture: " + showing.value);
+    } else {
+      showing.value =
+        captureIds[(captureIds.indexOf(showing.value) + 1) % captureIds.length];
+
+      console.log("New capture: " + showing.value);
+    }
+  }
 };
 
 onMounted(() => {
-  setInterval(toggle, 1000);
+  toggle();
 });
 </script>
 
