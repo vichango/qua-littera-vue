@@ -27,7 +27,7 @@
 
 <script setup>
 import { Query } from "appwrite";
-import { computed, inject, onMounted, ref } from "vue";
+import { computed, inject, onMounted, ref, watch } from "vue";
 
 import WordScroll from "../demo/WordScroll.vue";
 
@@ -38,6 +38,10 @@ const props = defineProps({
 const mainDb = inject("main-db");
 const mainDbCapturesCol = inject("main-db-captures-col");
 
+const databases = inject("appwrite-databases");
+
+const maxCreatedAt = ref(null);
+const allCaptures = ref({});
 const captures = ref();
 
 const loading = ref(false);
@@ -55,7 +59,32 @@ const targetWords = computed(() => {
 
 onMounted(() => {
   fetchLetters();
+  // setInterval(() => {
+  //   console.log("Re-fetching.");
+  //   fetchLetters();
+  // }, 30000);
 });
+
+watch(
+  () => Object.keys(allCaptures.value).length,
+  () => {
+    captures.value = Object.values(allCaptures).reduce(
+      (acc, { letter, ...rest }) => {
+        return {
+          ...acc,
+          [letter]: [
+            ...(acc[letter] || []),
+            {
+              letter,
+              ...rest,
+            },
+          ],
+        };
+      },
+      {},
+    );
+  },
+);
 
 const toggleTrace = () => {
   trace.value = !trace.value;
@@ -64,40 +93,52 @@ const toggleTrace = () => {
 const fetchLetters = () => {
   loading.value = true;
 
-  const databases = inject("appwrite-databases");
+  const queries = [
+    Query.equal("event", props.event.id),
+    Query.orderAsc("$createdAt"),
+  ];
+
+  if (maxCreatedAt.value) {
+    queries.push(
+      Query.greaterThanEqual("$createdAt", maxCreatedAt.value.toISOString()),
+    );
+  }
 
   return databases
-    .listDocuments(mainDb, mainDbCapturesCol, [
-      Query.equal("event", props.event.id),
-    ])
+    .listDocuments(mainDb, mainDbCapturesCol, queries)
     .then(
       function (response) {
-        captures.value = response.documents.reduce(
-          (acc, { letter, device, trace, traceBox, capture }) => {
+        response.documents.forEach((entry) => {
+          const {
+            $id: id,
+            letter,
+            device,
+            trace,
+            traceBox,
+            capture,
+            $createdAt: createdAt,
+          } = entry;
+
+          // Update captures.
+          if (!(id in allCaptures.value)) {
             const [minX, maxX, minY, maxY] =
               0 < traceBox.length ? traceBox : [0, 1, 0, 1];
 
-            return {
-              ...acc,
-              [letter]: [
-                ...(acc[letter] || []),
-                {
-                  letter,
-                  player: device,
-                  trace,
-                  traceBox: {
-                    minX,
-                    maxX,
-                    minY,
-                    maxY,
-                  },
-                  capture,
-                },
-              ],
+            allCaptures.value[id] = {
+              letter,
+              player: device,
+              trace,
+              traceBox: { minX, maxX, minY, maxY },
+              capture,
             };
-          },
-          {},
-        );
+          }
+
+          // Update max created at date.
+          const createdAtDate = new Date(createdAt);
+          if (!maxCreatedAt.value || maxCreatedAt.value <= createdAtDate) {
+            maxCreatedAt.value = createdAtDate;
+          }
+        });
       },
       function (error) {
         console.log(error);
