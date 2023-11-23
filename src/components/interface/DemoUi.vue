@@ -1,6 +1,6 @@
 <template>
   <div class="w-screen h-screen bg-gray-100">
-    <div class="text-end">
+    <div class="text-center">
       <button
         class="bg-gray-200 text-gray-300 py-2 px-4 mx-1 my-4 rounded"
         @click="toggleTrace"
