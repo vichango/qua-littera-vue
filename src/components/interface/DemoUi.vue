@@ -1,6 +1,17 @@
 <template>
   <div class="w-screen h-screen bg-gray-100">
-    <div class="text-center">
+    <div class="w-full h-full bg-gray-100 flex flex-col justify-center">
+      <div v-if="captures" class="bg-gray-200 flex flex-wrap m-auto">
+        <WordScroll
+          v-for="(word, index) of targetWords"
+          :key="index"
+          :word="word"
+          :show-trace="trace"
+          :captures="captures"
+        />
+      </div>
+    </div>
+    <div class="text-end bg-gray-200">
       <button
         class="bg-gray-200 text-gray-300 py-2 px-4 mx-1 my-4 rounded"
         @click="toggleTrace"
@@ -13,17 +24,6 @@
       >
         <font-awesome-icon icon="fa-solid fa-rotate" />
       </button>
-    </div>
-    <div class="w-full h-full bg-gray-100 flex flex-col justify-center">
-      <div v-if="captures" class="bg-gray-200 flex flex-wrap m-auto">
-        <WordScroll
-          v-for="(word, index) of targetWords"
-          :key="index"
-          :word="word"
-          :show-trace="trace"
-          :captures="captures"
-        />
-      </div>
     </div>
   </div>
 </template>
@@ -75,10 +75,11 @@ onMounted(() => {
   }, {});
 
   fetchLetters();
-  // setInterval(() => {
-  //   console.log("Re-fetching.");
-  //   fetchLetters();
-  // }, 5000);
+
+  setInterval(() => {
+    console.log("Re-fetching.");
+    fetchLetters();
+  }, 60000);
 });
 
 watch(
@@ -101,7 +102,6 @@ const fetchLetters = () => {
   const queries = [
     Query.equal("event", props.event.id),
     Query.orderAsc("$createdAt"),
-    // Query.limit(2),
   ];
 
   if (maxCreatedAt.value) {
