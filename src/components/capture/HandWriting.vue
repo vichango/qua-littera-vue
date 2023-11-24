@@ -222,8 +222,8 @@ const erase = () => {
 
 const recognize = () => {
   const options = {
-    upperCase: true,
-    // removeAccents: true,
+    // upperCase: true,
+    removeAccents: true,
     singleLetter: true,
   };
 

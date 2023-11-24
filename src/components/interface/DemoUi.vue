@@ -1,7 +1,7 @@
 <template>
   <div class="w-screen h-screen bg-gray-100">
     <div class="w-full h-full bg-gray-100 flex flex-col justify-center">
-      <div v-if="captures" class="bg-gray-200 flex flex-wrap m-auto">
+      <div v-if="captures" class="bg-gray-100 flex flex-wrap m-auto">
         <WordScroll
           v-for="(word, index) of targetWords"
           :key="index"
@@ -11,7 +11,7 @@
         />
       </div>
     </div>
-    <div class="text-end bg-gray-200">
+    <div class="text-end bg-gray-100">
       <button
         class="bg-gray-200 text-gray-300 py-2 px-4 mx-1 my-4 rounded"
         @click="toggleTrace"
@@ -50,13 +50,11 @@ const captures = ref({});
 const trace = ref(true);
 
 const targetWords = computed(() => {
-  return (
-    props.event.target
-      .toUpperCase()
-      // .normalize("NFD")
-      // .replace(/[\u0300-\u036f]/g, "")
-      .split(" ")
-  );
+  return props.event.target
+    .toUpperCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .split(" ");
 });
 
 const targetLetters = computed(() => {
@@ -128,9 +126,14 @@ const fetchLetters = () => {
           const [minX, maxX, minY, maxY] =
             0 < traceBox.length ? traceBox : [0, 1, 0, 1];
 
+          const upLetter = letter
+            .toUpperCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
+
           allCaptures.value[id] = {
             id,
-            letter,
+            letter: upLetter,
             player: device,
             trace,
             traceBox: { minX, maxX, minY, maxY },

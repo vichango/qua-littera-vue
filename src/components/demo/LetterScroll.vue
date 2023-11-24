@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="null === showing"
-    class="no-capture me-[12px] rounded border-dashed border-2 border-gray-300 text-gray-300 text-2xl inline-flex justify-center items-center"
+    class="no-capture me-[12px] rounded border-dashed border-2 border-gray-300 text-gray-300 text-4xl inline-flex justify-center items-center"
   >
     {{ props.letter }}
   </div>
