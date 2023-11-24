@@ -83,12 +83,12 @@
     <AppMessage
       v-if="!traceNotEmpty"
       color="green"
-      message="Vas-y, dessine la lettre que tu as vu!"
+      message="Vas-y, dessine la lettre que tu as vu! (Ou clique sur l'appareil pour revenir à la capture d'image)"
     />
     <AppMessage
       v-else-if="!traceBigEnough"
       color="green"
-      message="J'ai pas mes lunettes, c'est encore trop petit …"
+      message="J'arrive pas à lire, c'est trop petit …"
     />
     <AppMessage
       v-else-if="letterOptions && 0 === letterOptions.length"
@@ -289,6 +289,11 @@ const recognize = () => {
               return arr.indexOf(item) == pos;
             });
         }
+
+        // Remove numeric.
+        results = results.filter(function (item) {
+          return isNaN(item);
+        });
 
         letterOptions.value = results;
       } else if (xhr.status === 403) {
