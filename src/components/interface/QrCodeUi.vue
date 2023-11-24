@@ -5,7 +5,6 @@
         <qrcode-vue
           :size="200"
           :value="playerUrl"
-          level="L"
           class="m-3"
           @click="player = !player"
         />
@@ -17,7 +16,6 @@
         <qrcode-vue
           :value="eventUrl"
           :size="200"
-          level="L"
           class="m-3"
           @click="player = !player"
         />
@@ -39,13 +37,13 @@ const props = defineProps({
 });
 
 const playerUrl = computed(() => {
-  return `${import.meta.env.VITE_SERVER_URL}/?eid=${props.event.id}&pid=${
+  return `${import.meta.env.VITE_SERVER_URL}?eid=${props.event.id}&pid=${
     props.playerId
   }`;
 });
 
 const eventUrl = computed(() => {
-  return `${import.meta.env.VITE_SERVER_URL}/?eid=${props.event.id}}`;
+  return `${import.meta.env.VITE_SERVER_URL}?eid=${props.event.id}}`;
 });
 </script>
 
