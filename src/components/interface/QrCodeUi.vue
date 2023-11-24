@@ -43,7 +43,7 @@ const playerUrl = computed(() => {
 });
 
 const eventUrl = computed(() => {
-  return `${import.meta.env.VITE_SERVER_URL}?eid=${props.event.id}}`;
+  return `${import.meta.env.VITE_SERVER_URL}?eid=${props.event.id}`;
 });
 </script>
 
