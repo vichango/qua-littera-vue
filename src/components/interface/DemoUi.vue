@@ -8,6 +8,9 @@
           :word="word"
           :show-trace="trace"
           :captures="captures"
+          :scroll-request="
+            word in wordsScrollRequest ? wordsScrollRequest[word] : new Date()
+          "
         />
       </div>
     </div>
@@ -20,7 +23,7 @@
       </button>
       <button
         class="bg-gray-200 text-gray-300 py-2 px-4 mx-1 my-4 rounded"
-        @click="fetchLetters"
+        @click="updateRefresh"
       >
         <font-awesome-icon icon="fa-solid fa-rotate" />
       </button>
@@ -48,6 +51,12 @@ const allCaptures = ref({});
 const captures = ref({});
 
 const trace = ref(true);
+
+const wordsScrollRequest = ref({});
+
+const targetWordsLength = computed(() => {
+  return targetWords.value.reduce((acc, word) => acc + word.length, 0);
+});
 
 const targetWords = computed(() => {
   return props.event.target
@@ -78,6 +87,10 @@ onMounted(() => {
     console.log("Re-fetching.");
     fetchLetters();
   }, 60000);
+
+  setInterval(() => {
+    updateRefresh();
+  }, 15000);
 });
 
 watch(
@@ -94,6 +107,19 @@ watch(
 
 const toggleTrace = () => {
   trace.value = !trace.value;
+};
+
+const updateRefresh = () => {
+  targetWords.value.forEach((word) => {
+    if (!(word in wordsScrollRequest.value)) {
+      wordsScrollRequest.value[word] = new Date();
+    }
+
+    if (Math.random() <= word.length / targetWordsLength.value) {
+      console.log('Refreshing "' + word + '"');
+      wordsScrollRequest.value[word] = new Date();
+    }
+  });
 };
 
 const fetchLetters = () => {

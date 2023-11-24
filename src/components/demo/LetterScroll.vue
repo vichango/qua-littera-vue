@@ -15,7 +15,7 @@
       :letter="props.letter"
       :show-trace="props.showTrace"
       :capture="props.captures[showing]"
-      @click="toggle"
+      @click="shiftCapture"
     />
   </div>
 </template>
@@ -29,7 +29,7 @@ const props = defineProps({
   letter: { type: String, required: true },
   showTrace: { type: Boolean, default: true },
   captures: { type: Object, default: () => {} },
-  // scrollRequest: { type: Date, required: true },
+  scrollRequest: { type: Date, required: true },
 });
 
 const sizePixels = computed(() => {
@@ -37,28 +37,28 @@ const sizePixels = computed(() => {
 });
 
 const showing = ref(null);
-// const lastScrollRequest = ref(null);
+const lastScrollRequest = ref(null);
 
 watch(
   () => Object.keys(props.captures).length,
   () => {
     if (null === showing.value) {
-      toggle();
+      shiftCapture();
     }
   },
 );
 
-// watch(
-//   () => props.scrollRequest,
-//   (newValue) => {
-//     if (newValue > lastScrollRequest.value) {
-//       toggle();
-//       lastScrollRequest.value = newValue;
-//     }
-//   },
-// );
+watch(
+  () => props.scrollRequest,
+  (newValue) => {
+    if (newValue > lastScrollRequest.value) {
+      lastScrollRequest.value = newValue;
+      shiftCapture();
+    }
+  },
+);
 
-const toggle = () => {
+const shiftCapture = () => {
   const captureIds = Object.keys(props.captures);
 
   if (captureIds.length > 0) {
@@ -75,7 +75,7 @@ const toggle = () => {
 };
 
 onMounted(() => {
-  toggle();
+  shiftCapture();
 });
 </script>
 
