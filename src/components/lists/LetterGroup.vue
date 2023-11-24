@@ -1,8 +1,8 @@
 <template>
   <div v-if="open" class="flex flex-wrap m-2">
     <SingleLetter
-      v-for="(capture, index) of props.captures"
-      :key="`sl-${index}`"
+      v-for="[id, capture] of Object.entries(props.captures)"
+      :key="id"
       :capture="capture"
       :size="128"
       :preview-size="256"
@@ -21,7 +21,7 @@
     <div
       class="absolute inline-flex items-center justify-center w-8 h-8 text-xs text-violet-600 bg-violet-300 rounded-full -top-3 -right-3"
     >
-      {{ props.captures.length }}
+      {{ Object.keys(props.captures).length }}
     </div>
   </div>
 </template>
@@ -37,7 +37,7 @@ const open = ref(false);
 const props = defineProps({
   letter: { type: String, required: true },
   playerId: { type: String, required: true },
-  captures: { type: Array, required: true },
+  captures: { type: Object, required: true },
 });
 
 const toggle = () => {

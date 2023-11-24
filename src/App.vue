@@ -14,6 +14,7 @@ import { v4 as uuidv4 } from "uuid";
 import { computed, inject, onMounted, provide, ref } from "vue";
 import DemoUi from "./components/interface/DemoUi.vue";
 import MissingEvent from "./components/interface/MissingEvent.vue";
+import ModerateUi from "./components/interface/ModerateUi.vue";
 import NotFound from "./components/interface/NotFound.vue";
 import PlayerUi from "./components/interface/PlayerUi.vue";
 import QrCodeUi from "./components/interface/QrCodeUi.vue";
@@ -29,8 +30,9 @@ const playerId = ref(null);
 
 const routes = {
   "/": PlayerUi,
-  "/qr": QrCodeUi,
   "/demo": DemoUi,
+  "/moderate": ModerateUi,
+  "/qr": QrCodeUi,
 };
 
 const currentPath = ref(window.location.hash);

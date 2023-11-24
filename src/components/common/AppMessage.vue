@@ -20,6 +20,6 @@ const props = defineProps({
 
 <style scoped>
 .light-background {
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 255, 255, 0.6);
 }
 </style>

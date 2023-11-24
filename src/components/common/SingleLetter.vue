@@ -23,7 +23,13 @@
       />
       <button
         v-if="isGod || props.playerId === props.capture.player"
-        class="remove action relative inline-flex items-center justify-center text-violet-600 bg-violet-300 rounded-full"
+        :class="[
+          'remove action relative inline-flex items-center justify-center rounded-full',
+          deleting
+            ? 'animate-spin text-gray-600 bg-gray-300'
+            : 'text-violet-600 bg-violet-300',
+        ]"
+        :disabled="deleting"
         @click.stop="deleteCapture"
       >
         <font-awesome-icon icon="fa-solid fa-trash" />
@@ -59,6 +65,7 @@ const storage = inject("appwrite-storage");
 const databases = inject("appwrite-databases");
 
 const actionSize = 32;
+const deleting = ref(false);
 
 const isGod = "godmode" === inject("mode");
 
@@ -105,11 +112,15 @@ onMounted(() => {
 });
 
 const deleteCapture = async () => {
+  deleting.value = true;
+
   // Delete bucket files.
   await storage.deleteFile(capturesBucket, props.capture.capture);
   await storage.deleteFile(tracesBucket, props.capture.trace);
   // Delete document.
   await databases.deleteDocument(mainDb, mainDbCapturesCol, props.capture.id);
+
+  deleting.value = false;
 
   emit("refresh");
 };

@@ -23,19 +23,6 @@
               @refresh="doRefresh"
             />
           </div>
-          <div v-if="isGod">
-            <h1 class="text-2xl align-center text-violet-600 p-2 pb-4">
-              Toutes les captures
-            </h1>
-
-            <LetterList
-              v-if="allLetters"
-              :event="event"
-              :player-id="props.playerId"
-              :captures="allLetters"
-              @refresh="doRefresh"
-            />
-          </div>
         </div>
       </div>
     </div>
@@ -53,78 +40,38 @@ const props = defineProps({
   playerId: { type: String, required: true },
 });
 
-const yourLetters = ref();
-const allLetters = ref();
+const yourLetters = ref([]);
+
+const databases = inject("appwrite-databases");
 
 const mainDb = inject("main-db");
 const mainDbCapturesCol = inject("main-db-captures-col");
-
-const isGod = "godmode" === inject("mode");
 
 onMounted(() => {
   doRefresh();
 });
 
-const databases = inject("appwrite-databases");
-
 const doRefresh = () => {
   fetchYourLetters();
-  fetchAllLetters();
 };
 
 const fetchYourLetters = () => {
+  yourLetters.value = [];
+
   return databases
     .listDocuments(mainDb, mainDbCapturesCol, [
       Query.equal("event", props.event.id),
       Query.equal("device", props.playerId),
-      Query.limit(25),
-      Query.offset(0),
     ])
     .then(
       function (response) {
         yourLetters.value = response.documents.map(
-          ({ $id, letter, device, trace, traceBox, capture }) => {
+          ({ $id: id, letter, device, trace, traceBox, capture }) => {
             const [minX, maxX, minY, maxY] =
               0 < traceBox.length ? traceBox : [0, 1, 0, 1];
 
             return {
-              id: $id,
-              letter,
-              player: device,
-              trace,
-              traceBox: {
-                minX,
-                maxX,
-                minY,
-                maxY,
-              },
-              capture,
-            };
-          },
-        );
-      },
-      function (error) {
-        console.error(error);
-      },
-    );
-};
-
-const fetchAllLetters = () => {
-  return databases
-    .listDocuments(mainDb, mainDbCapturesCol, [
-      Query.equal("event", props.event.id),
-      Query.limit(25),
-      Query.offset(0),
-    ])
-    .then(
-      function (response) {
-        allLetters.value = response.documents.map(
-          ({ $id, letter, device, trace, traceBox, capture }) => {
-            const [minX, maxX, minY, maxY] =
-              0 < traceBox.length ? traceBox : [0, 1, 0, 1];
-
-            return {
-              id: $id,
+              id,
               letter,
               player: device,
               trace,

@@ -1,8 +1,8 @@
 <template>
   <div v-if="letters">
     <LetterGroup
-      v-for="([letter, letterCaptures], index) of Object.entries(letters)"
-      :key="index"
+      v-for="[letter, letterCaptures] of Object.entries(letters)"
+      :key="`lg-${letter}`"
       :letter="letter"
       :captures="letterCaptures"
       :player-id="props.playerId"
@@ -16,16 +16,17 @@ import { computed } from "vue";
 import LetterGroup from "./LetterGroup.vue";
 
 const letters = computed(() => {
-  return props.captures.reduce((acc, { letter, ...rest }) => {
+  return props.captures.reduce((acc, { id, letter, ...rest }) => {
     return {
       ...acc,
-      [letter]: [
-        ...(acc[letter] || []),
-        {
+      [letter]: {
+        ...(acc[letter] || {}),
+        [id]: {
+          id,
           letter,
           ...rest,
         },
-      ],
+      },
     };
   }, {});
 });
