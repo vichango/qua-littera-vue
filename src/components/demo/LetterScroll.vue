@@ -64,12 +64,9 @@ const shiftCapture = () => {
   if (captureIds.length > 0) {
     if (null === showing.value) {
       showing.value = captureIds[0];
-      console.log("Initial capture: " + showing.value);
     } else {
       showing.value =
         captureIds[(captureIds.indexOf(showing.value) + 1) % captureIds.length];
-
-      console.log("New capture: " + showing.value);
     }
   }
 };

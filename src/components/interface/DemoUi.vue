@@ -116,7 +116,6 @@ const updateRefresh = () => {
     }
 
     if (Math.random() <= word.length / targetWordsLength.value) {
-      console.log('Refreshing "' + word + '"');
       wordsScrollRequest.value[word] = new Date();
     }
   });
